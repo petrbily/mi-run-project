@@ -6,6 +6,7 @@
  */
 package tinyjvm.structure.classfile;
 
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -282,6 +283,22 @@ public class ClassFile {
     public ThisClass getThisClass() {
         return this.this_class;
     }
+    
+    /**
+     * Get the {@code this_class_name} of the {@code ClassFile} structure.
+     *
+     * @return The {@code this_class_name}
+     */
+    public String getThisClassName(){
+        ConstantClassInfo conClass = (ConstantClassInfo)this.constant_pool[this_class.value.value];
+        String className = null;
+        try{
+            className = this.getConstantUtf8Value(conClass.getNameIndex());
+        }catch(ClassFormatException cfe){
+            cfe.printStackTrace();
+        }
+        return className;
+    }
 
     /**
      * Get the {@code super_class} of the {@code ClassFile} structure.
@@ -336,7 +353,7 @@ public class ClassFile {
     public MethodCount getMethodCount() {
         return this.methods_count;
     }
-
+    
     /**
      * Get the {@code methods}[] of the {@code ClassFile} structure.
      *
@@ -362,6 +379,25 @@ public class ClassFile {
      */
     public AttributeInfo[] getAttributes() {
         return this.attributes;
+    }
+    
+    public ArrayList<String> getClassNamesFromCP(){
+        ArrayList<String> classNames = new ArrayList();
+        String thisClassName = this.getThisClassName();
+        for(AbstractCPInfo cpInf : this.getConstantPool()){
+            if(cpInf == null) continue;
+            if(cpInf.tag.value == 7){
+                String className = null;
+                try{
+                    className = this.getConstantUtf8Value(((ConstantClassInfo)cpInf).getNameIndex());
+                }catch(ClassFormatException cfe){
+                    cfe.printStackTrace();
+                }
+                if(className == null || thisClassName.equals(className)) continue;
+                classNames.add(className);
+            }
+        }
+        return classNames;
     }
 
     ///////////////////////////////////////////////////////////////////////////
