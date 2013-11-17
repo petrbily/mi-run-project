@@ -2,12 +2,12 @@ package tinyjvm;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.regex.Pattern;
 import tinyjvm.structure.ClassHeap;
 import tinyjvm.structure.FilePathManager;
 import tinyjvm.structure.classfile.ClassFile;
 import tinyjvm.structure.classfile.ClassFormatException;
 import tinyjvm.structure.ClassLoader;
+import tinyjvm.structure.ObjectHeap;
 /**
  *
  * @author Daniel
@@ -35,6 +35,8 @@ public class TinyJVM{
         //classHeap.addClass("runtest/Clovek");
         
         classHeap.printClassHeap();
+        
+        ObjectHeap oh = new ObjectHeap();
         
     }
     
