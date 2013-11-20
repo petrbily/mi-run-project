@@ -2,11 +2,13 @@ package tinyjvm;
 
 import java.io.File;
 import java.io.IOException;
+import tinyjvm.execution.ExecutionUnit;
 import tinyjvm.structure.ClassHeap;
 import tinyjvm.structure.FilePathManager;
 import tinyjvm.structure.classfile.ClassFile;
 import tinyjvm.structure.classfile.ClassFormatException;
 import tinyjvm.structure.ClassLoader;
+import tinyjvm.structure.Frame;
 import tinyjvm.structure.ObjectHeap;
 /**
  *
@@ -34,7 +36,12 @@ public class TinyJVM{
         classHeap.addRecursivelyFromRoot(rootClass);
         //classHeap.addClass("runtest/Clovek");
         
-        classHeap.printClassHeap();
+        ClassFile testClass = classHeap.getClass("runtest/JTest1");
+        Frame testFrame = new Frame(testClass.getMethod("addInt"));
+        
+        ExecutionUnit.execute(testFrame);
+        
+        //classHeap.printClassHeap();
         
         ObjectHeap oh = new ObjectHeap();
         
