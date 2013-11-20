@@ -15,6 +15,7 @@ public class MyObject extends Variable{
     public String id;
     public HashMap<String,Variable> instanceVar = new HashMap<String,Variable>();
     public ClassFile classFile;
+    public MyObject superObject;
     
     public MyObject(FieldInfo info, ClassFile classFile, String id){
         super(info);
@@ -28,6 +29,11 @@ public class MyObject extends Variable{
     @Override
     public String getType(){
         return "Object";
+    }
+    
+    @Override
+    public String toString(){
+        return id;
     }
 
     //TODO init at runtime

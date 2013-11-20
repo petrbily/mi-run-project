@@ -63,4 +63,8 @@ public class ClassHeap {
             System.out.println("Key: " + key);
         }
     }
+    
+    public ClassFile getClass(String key){
+        return classHeap.get(key);
+    }
 }

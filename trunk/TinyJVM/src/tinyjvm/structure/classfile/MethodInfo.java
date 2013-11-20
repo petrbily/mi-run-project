@@ -34,6 +34,7 @@ public class MethodInfo extends ClassComponent {
     u2 descriptor_index;
     u2 attributes_count;
     AttributeInfo[] attributes;
+    AttributeCode code;
     /**
      * Value for access flag {@code ACC_PUBLIC} for a {@code Method}.
      */
@@ -71,6 +72,7 @@ public class MethodInfo extends ClassComponent {
      */
     public static final int ACC_STRICT = 0x0800;
     private String declaration;
+    private String name;
 
     MethodInfo() {
     }
@@ -94,6 +96,9 @@ public class MethodInfo extends ClassComponent {
             this.attributes = new AttributeInfo[attrCount];
             for (int i = 0; i < attrCount; i++) {
                 this.attributes[i] = AttributeInfo.parse(posDataInputStream, cp);
+                if(this.attributes[i].getType().equals("Code")){
+                    this.code = (AttributeCode) this.attributes[i];
+                }
             }
         }
 
@@ -119,6 +124,14 @@ public class MethodInfo extends ClassComponent {
         return this.access_flags.value;
     }
 
+    public byte [] getByteCode(){
+        return code.getCode();
+    }
+    
+    public int getMaxLocals(){
+        return code.getMaxLocals();
+    }
+
     /**
      * Get the value of {@code name_index}.
      *
@@ -126,6 +139,14 @@ public class MethodInfo extends ClassComponent {
      */
     public int getNameIndex() {
         return this.name_index.value;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**

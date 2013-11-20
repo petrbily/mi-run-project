@@ -172,7 +172,7 @@ public class AttributeInfo extends ClassComponent {
     protected void checkSize(final int endPos)
             throws ClassFormatException {
         if (this.startPos + this.length != endPos) {
-            throw new ClassFormatException(String.format("Attribute analysis failed. type='%s', startPos=%d, length=%d, endPos=%d", this.getName(), this.startPos, this.length, endPos));
+            throw new ClassFormatException(String.format("Attribute analysis failed. type='%s', startPos=%d, length=%d, endPos=%d", this.getType(), this.startPos, this.length, endPos));
         }
     }
 
@@ -187,7 +187,7 @@ public class AttributeInfo extends ClassComponent {
      * VM Spec: Attributes
      * </a>
      */
-    public String getName() {
+    public String getType() {
         return (this.type != null) ? this.type : "";
     }
 

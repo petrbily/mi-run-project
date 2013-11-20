@@ -136,6 +136,8 @@ public class ClassFile {
                         mtdReturnType,
                         this.getConstantUtf8Value(method.getNameIndex()),
                         mtdParameters));
+                
+                method.setName(this.getConstantUtf8Value(method.getNameIndex()));
             }
         }
     }
@@ -399,6 +401,17 @@ public class ClassFile {
         }
         return classNames;
     }
+
+    
+    public MethodInfo getMethod(String methodName) {
+        for (MethodInfo mi : methods) {
+            if(mi.getName().equals(methodName)){
+                return mi;
+            }
+        }        
+        return null;
+    }
+    
 
     ///////////////////////////////////////////////////////////////////////////
     // Get extracted data
