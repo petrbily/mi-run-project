@@ -115,10 +115,9 @@ public abstract class AbstractCPInfo extends ClassComponent {
      * </a>
      */
     public static final short CONSTANT_NameAndType = 12;
-    transient u1 tag;
+    transient short tag;
 
     AbstractCPInfo() {
-        this.tag = new u1();
     }
 
     /**
@@ -127,7 +126,7 @@ public abstract class AbstractCPInfo extends ClassComponent {
      * @return The value of {@code tag}
      */
     public short getTag() {
-        return this.tag.value;
+        return this.tag;
     }
 
     /**

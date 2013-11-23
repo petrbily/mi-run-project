@@ -34,7 +34,7 @@ public class ConstantFloatInfo extends AbstractCPInfo {
         throws IOException
     {
         super();
-        this.tag.value = AbstractCPInfo.CONSTANT_Float;
+        this.tag = AbstractCPInfo.CONSTANT_Float;
 
         this.startPos = posDataInputStream.getPos() - 1;
         this.length = 5;

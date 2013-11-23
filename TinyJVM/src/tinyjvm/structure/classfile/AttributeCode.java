@@ -41,42 +41,37 @@ import java.io.IOException;
  */
 public class AttributeCode extends AttributeInfo {
 
-    private transient final u2 max_stack;
-    private transient final u2 max_locals;
-    private transient final u4 code_length;
+    private transient final int max_stack;
+    private transient final int max_locals;
+    private transient final int code_length;
     private transient final byte[] code;
-    private transient final u2 exception_table_length;
+    private transient final int exception_table_length;
     private transient ExceptionTable[] exceptionTable;
-    private transient final u2 attributes_count;
+    private transient final int attributes_count;
     private transient AttributeInfo[] attributes;
 
-    AttributeCode(final u2 nameIndex, final String type, final PosDataInputStream posDataInputStream, final AbstractCPInfo[] cp)
+    AttributeCode(final int nameIndex, final String type, final PosDataInputStream posDataInputStream, final AbstractCPInfo[] cp)
             throws IOException, ClassFormatException {
         super(nameIndex, type, posDataInputStream);
 
         int i;
 
-        this.max_stack = new u2();
-        this.max_stack.value = posDataInputStream.readUnsignedShort();
-        this.max_locals = new u2();
-        this.max_locals.value = posDataInputStream.readUnsignedShort();
-        this.code_length = new u4();
-        this.code_length.value = posDataInputStream.readInt();
-        this.code = new byte[this.code_length.value];
+        this.max_stack = posDataInputStream.readUnsignedShort();
+        this.max_locals = posDataInputStream.readUnsignedShort();
+        this.code_length = posDataInputStream.readInt();
+        this.code = new byte[this.code_length];
         posDataInputStream.read(this.code);
 
-        this.exception_table_length = new u2();
-        this.exception_table_length.value = posDataInputStream.readUnsignedShort();
-        if (this.exception_table_length.value > 0) {
-            this.exceptionTable = new ExceptionTable[this.exception_table_length.value];
-            for (i = 0; i < this.exception_table_length.value; i++) {
+        this.exception_table_length = posDataInputStream.readUnsignedShort();
+        if (this.exception_table_length > 0) {
+            this.exceptionTable = new ExceptionTable[this.exception_table_length];
+            for (i = 0; i < this.exception_table_length; i++) {
                 this.exceptionTable[i] = new ExceptionTable(posDataInputStream);
             }
         }
 
-        this.attributes_count = new u2();
-        this.attributes_count.value = posDataInputStream.readUnsignedShort();
-        final int attrCount = this.attributes_count.value;
+        this.attributes_count = posDataInputStream.readUnsignedShort();
+        final int attrCount = this.attributes_count;
         if (attrCount > 0) {
             this.attributes = new AttributeInfo[attrCount];
             for (i = 0; i < attrCount; i++) {
@@ -94,7 +89,7 @@ public class AttributeCode extends AttributeInfo {
      * @return The value of {@code max_stack}
      */
     public int getMaxStack() {
-        return this.max_stack.value;
+        return this.max_stack;
     }
 
     /**
@@ -103,7 +98,7 @@ public class AttributeCode extends AttributeInfo {
      * @return The value of {@code max_locals}
      */
     public int getMaxLocals() {
-        return this.max_locals.value;
+        return this.max_locals;
     }
 
     /**
@@ -112,7 +107,7 @@ public class AttributeCode extends AttributeInfo {
      * @return The value of {@code code_length}
      */
     public int getCodeLength() {
-        return this.code_length.value;
+        return this.code_length;
     }
 
     /**
@@ -130,7 +125,7 @@ public class AttributeCode extends AttributeInfo {
      * @return The value of {@code exception_table_length}
      */
     public int getExceptionTableLength() {
-        return this.exception_table_length.value;
+        return this.exception_table_length;
     }
 
     /**
@@ -153,7 +148,7 @@ public class AttributeCode extends AttributeInfo {
      * @return The value of {@code attributes_count}
      */
     public int getAttributeCount() {
-        return this.attributes_count.value;
+        return this.attributes_count;
     }
 
     /**
@@ -174,24 +169,20 @@ public class AttributeCode extends AttributeInfo {
      */
     public final class ExceptionTable extends ClassComponent {
 
-        private transient final u2 start_pc;
-        private transient final u2 end_pc;
-        private transient final u2 handler_pc;
-        private transient final u2 catch_type;
+        private transient final int start_pc;
+        private transient final int end_pc;
+        private transient final int handler_pc;
+        private transient final int catch_type;
 
         private ExceptionTable(final PosDataInputStream posDataInputStream)
                 throws IOException {
             this.startPos = posDataInputStream.getPos();
             this.length = 8;
 
-            this.start_pc = new u2();
-            this.start_pc.value = posDataInputStream.readUnsignedShort();
-            this.end_pc = new u2();
-            this.end_pc.value = posDataInputStream.readUnsignedShort();
-            this.handler_pc = new u2();
-            this.handler_pc.value = posDataInputStream.readUnsignedShort();
-            this.catch_type = new u2();
-            this.catch_type.value = posDataInputStream.readUnsignedShort();
+            this.start_pc = posDataInputStream.readUnsignedShort();
+            this.end_pc = posDataInputStream.readUnsignedShort();
+            this.handler_pc = posDataInputStream.readUnsignedShort();
+            this.catch_type = posDataInputStream.readUnsignedShort();
         }
 
         /**
@@ -200,7 +191,7 @@ public class AttributeCode extends AttributeInfo {
          * @return The value of {@code start_pc}
          */
         public int getStartPc() {
-            return this.start_pc.value;
+            return this.start_pc;
         }
 
         /**
@@ -209,7 +200,7 @@ public class AttributeCode extends AttributeInfo {
          * @return The value of {@code end_pc}
          */
         public int getEndPc() {
-            return this.end_pc.value;
+            return this.end_pc;
         }
 
         /**
@@ -218,7 +209,7 @@ public class AttributeCode extends AttributeInfo {
          * @return The value of {@code handler_pc}
          */
         public int getHandlerPc() {
-            return this.handler_pc.value;
+            return this.handler_pc;
         }
 
         /**
@@ -227,7 +218,7 @@ public class AttributeCode extends AttributeInfo {
          * @return The value of {@code catch_type}
          */
         public int getCatchType() {
-            return this.catch_type.value;
+            return this.catch_type;
         }
     }
 }

@@ -29,21 +29,19 @@ import java.io.IOException;
  */
 public class AttributeExceptions extends AttributeInfo {
 
-    private transient final u2 number_of_exceptions;
-    private transient u2[] exception_index_table;
+    private transient final int number_of_exceptions;
+    private transient int[] exception_index_table;
 
-    AttributeExceptions(final u2 nameIndex, final String type, final PosDataInputStream posDataInputStream)
+    AttributeExceptions(final int nameIndex, final String type, final PosDataInputStream posDataInputStream)
             throws IOException, ClassFormatException {
         super(nameIndex, type, posDataInputStream);
 
-        this.number_of_exceptions = new u2();
-        this.number_of_exceptions.value = posDataInputStream.readUnsignedShort();
-        final int excpCount = this.number_of_exceptions.value;
+        this.number_of_exceptions = posDataInputStream.readUnsignedShort();
+        final int excpCount = this.number_of_exceptions;
         if (excpCount > 0) {
-            this.exception_index_table = new u2[excpCount];
+            this.exception_index_table = new int[excpCount];
             for (int i = 0; i < excpCount; i++) {
-                this.exception_index_table[i] = new u2();
-                this.exception_index_table[i].value = posDataInputStream.readUnsignedShort();
+                this.exception_index_table[i] = posDataInputStream.readUnsignedShort();
             }
         }
 
@@ -56,7 +54,7 @@ public class AttributeExceptions extends AttributeInfo {
      * @return The value of {@code number_of_exceptions}
      */
     public int getNumberOfExceptions() {
-        return this.number_of_exceptions.value;
+        return this.number_of_exceptions;
     }
 
     /**
@@ -71,7 +69,7 @@ public class AttributeExceptions extends AttributeInfo {
         if (this.exception_index_table == null) {
             i = -1;
         } else {
-            i = this.exception_index_table[index].value;
+            i = this.exception_index_table[index];
         }
 
         return i;

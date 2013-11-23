@@ -27,12 +27,12 @@ import java.io.IOException;
  */
 public class AttributeDeprecated extends AttributeInfo {
 
-    AttributeDeprecated(final u2 nameIndex, final String type, final PosDataInputStream posDataInputStream)
+    AttributeDeprecated(final int nameIndex, final String type, final PosDataInputStream posDataInputStream)
             throws IOException, ClassFormatException {
         super(nameIndex, type, posDataInputStream);
 
-        if (this.attribute_length.value != 0) {
-            throw new ClassFormatException(String.format("The attribute_length of AttributeDeprecated is not 0, it is %d.", this.attribute_length.value));
+        if (this.attribute_length != 0) {
+            throw new ClassFormatException(String.format("The attribute_length of AttributeDeprecated is not 0, it is %d.", this.attribute_length));
         }
 
         super.checkSize(posDataInputStream.getPos());

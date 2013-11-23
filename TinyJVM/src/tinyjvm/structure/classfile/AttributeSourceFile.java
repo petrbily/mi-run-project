@@ -28,18 +28,17 @@ import java.io.IOException;
  */
 public class AttributeSourceFile extends AttributeInfo {
 
-    private transient final u2 sourcefile_index;
+    private transient final int sourcefile_index;
 
-    AttributeSourceFile(final u2 nameIndex, final String type, final PosDataInputStream posDataInputStream)
+    AttributeSourceFile(final int nameIndex, final String type, final PosDataInputStream posDataInputStream)
             throws IOException, ClassFormatException {
         super(nameIndex, type, posDataInputStream);
 
-        if (this.attribute_length.value != 2) {
-            throw new ClassFormatException(String.format("The attribute_length of AttributeSourceFile is not 2, it is %d.", this.attribute_length.value));
+        if (this.attribute_length != 2) {
+            throw new ClassFormatException(String.format("The attribute_length of AttributeSourceFile is not 2, it is %d.", this.attribute_length));
         }
 
-        this.sourcefile_index = new u2();
-        this.sourcefile_index.value = posDataInputStream.readUnsignedShort();
+        this.sourcefile_index = posDataInputStream.readUnsignedShort();
 
         super.checkSize(posDataInputStream.getPos());
     }
@@ -50,6 +49,6 @@ public class AttributeSourceFile extends AttributeInfo {
      * @return The value of {@code sourcefile_index}
      */
     public int getSourcefileIndex() {
-        return this.sourcefile_index.value;
+        return this.sourcefile_index;
     }
 }

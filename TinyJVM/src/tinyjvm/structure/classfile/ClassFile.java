@@ -53,27 +53,27 @@ public class ClassFile {
      * Magic number of {@code class} file.
      */
     public static final int MAGIC = 0xCAFEBABE;
-    private u4 magic;
+    private int magic;
     // Class file Version
-    private MinorVersion minor_version;
-    private MajorVersion major_version;
+    private int minor_version;
+    private int major_version;
     // Constant pool
-    private CPCount constant_pool_count;
+    private int constant_pool_count;
     private AbstractCPInfo[] constant_pool;
     // Class Declaration
     private AccessFlags access_flags;
-    private ThisClass this_class;
-    private SuperClass super_class;
-    private InterfaceCount interfaces_count;
-    private Interface[] interfaces;
+    private int this_class;
+    private int super_class;
+    private int interfaces_count;
+    private int[] interfaces;
     // Field
-    private FieldCount fields_count;
+    private int fields_count;
     private FieldInfo[] fields;
     // Method
-    private MethodCount methods_count;
+    private int methods_count;
     private MethodInfo[] methods;
     // Attribute
-    private AttributeCount attributes_count;
+    private int attributes_count;
     private AttributeInfo[] attributes;
 
     /**
@@ -96,7 +96,7 @@ public class ClassFile {
             throws ClassFormatException {
 
         // Analysis field declarations
-        if (this.fields_count.getValue() > 0) {
+        if (this.fields_count > 0) {
             String type = null;
             for (FieldInfo field : fields) {
                 try {
@@ -114,7 +114,7 @@ public class ClassFile {
 
 
         // Analysis method declarations
-        if (this.methods_count.getValue() > 0) {
+        if (this.methods_count > 0) {
             String mtdReturnType = null;
             String mtdParameters = null;
             for (MethodInfo method : methods) {
@@ -146,21 +146,21 @@ public class ClassFile {
             throws ClassFormatException {
         String returnValue = null;
 
-        if ((cpIndex == 0) || (cpIndex >= this.constant_pool_count.value.value)) {
+        if ((cpIndex == 0) || (cpIndex >= this.constant_pool_count)) {
             throw new ClassFormatException(String.format(
                     "Constant Pool index is out of range. CP index cannot be zero, and should be less than CP count (=%d). CP index = %d.",
-                    this.constant_pool_count.value.value,
+                    this.constant_pool_count,
                     cpIndex));
         }
 
-        if (this.constant_pool[cpIndex].tag.value == AbstractCPInfo.CONSTANT_Utf8) {
+        if (this.constant_pool[cpIndex].tag == AbstractCPInfo.CONSTANT_Utf8) {
             final ConstantUtf8Info utf8Info = (ConstantUtf8Info) this.constant_pool[cpIndex];
             returnValue = utf8Info.getValue();
         } else {
             throw new ClassFormatException(String.format(
                     "Unexpected constant pool type: Utf8(%d) expected, but it is '%d'.",
                     AbstractCPInfo.CONSTANT_Utf8,
-                    this.constant_pool[cpIndex].tag.value));
+                    this.constant_pool[cpIndex].tag));
         }
 
         return returnValue;
@@ -211,21 +211,11 @@ public class ClassFile {
         return this.classByteArray.length;
     }
 
-    /**
-     * Get the {@code minor_version} of the {@code ClassFile} structure.
-     *
-     * @return The {@code minor_version}
-     */
-    public MinorVersion getMinorVersion() {
+    public int getMinorVersion() {
         return this.minor_version;
     }
 
-    /**
-     * Get the {@code major_version} of the {@code ClassFile} structure.
-     *
-     * @return The {@code major_version}
-     */
-    public MajorVersion getMajorVersion() {
+    public int getMajorVersion() {
         return this.major_version;
     }
 
@@ -234,7 +224,7 @@ public class ClassFile {
      *
      * @return The {@code constant_pool_count}
      */
-    public CPCount getCPCount() {
+    public int getCPCount() {
         return this.constant_pool_count;
     }
 
@@ -256,7 +246,7 @@ public class ClassFile {
      */
     public String getCPDescription(final int index) {
         // Invalid index
-        if (index >= this.constant_pool_count.getValue()) {
+        if (index >= this.constant_pool_count) {
             return null;
         }
 
@@ -282,7 +272,7 @@ public class ClassFile {
      *
      * @return The {@code this_class}
      */
-    public ThisClass getThisClass() {
+    public int getThisClass() {
         return this.this_class;
     }
     
@@ -292,7 +282,7 @@ public class ClassFile {
      * @return The {@code this_class_name}
      */
     public String getThisClassName(){
-        ConstantClassInfo conClass = (ConstantClassInfo)this.constant_pool[this_class.value.value];
+        ConstantClassInfo conClass = (ConstantClassInfo)this.constant_pool[this_class];
         String className = null;
         try{
             className = this.getConstantUtf8Value(conClass.getNameIndex());
@@ -307,7 +297,7 @@ public class ClassFile {
      *
      * @return The {@code super_class}
      */
-    public SuperClass getSuperClass() {
+    public int getSuperClass() {
         return this.super_class;
     }
 
@@ -316,7 +306,7 @@ public class ClassFile {
      *
      * @return The {@code interfaces_count}
      */
-    public InterfaceCount getInterfacesCount() {
+    public int getInterfacesCount() {
         return this.interfaces_count;
     }
 
@@ -325,7 +315,7 @@ public class ClassFile {
      *
      * @return The {@code interfaces}[]
      */
-    public Interface[] getInterfaces() {
+    public int[] getInterfaces() {
         return this.interfaces;
     }
 
@@ -334,7 +324,7 @@ public class ClassFile {
      *
      * @return The {@code fields_count}
      */
-    public FieldCount getFieldCount() {
+    public int getFieldCount() {
         return this.fields_count;
     }
 
@@ -352,7 +342,7 @@ public class ClassFile {
      *
      * @return The {@code methods_count}
      */
-    public MethodCount getMethodCount() {
+    public int getMethodCount() {
         return this.methods_count;
     }
     
@@ -370,7 +360,7 @@ public class ClassFile {
      *
      * @return The {@code attributes_count}
      */
-    public AttributeCount getAttributeCount() {
+    public int getAttributeCount() {
         return this.attributes_count;
     }
 
@@ -388,7 +378,7 @@ public class ClassFile {
         String thisClassName = this.getThisClassName();
         for(AbstractCPInfo cpInf : this.getConstantPool()){
             if(cpInf == null) continue;
-            if(cpInf.tag.value == 7){
+            if(cpInf.tag == 7){
                 String className = null;
                 try{
                     className = this.getConstantUtf8Value(((ConstantClassInfo)cpInf).getNameIndex());
@@ -427,8 +417,8 @@ public class ClassFile {
             final PosByteArrayInputStream posByteArrayInputStream = new PosByteArrayInputStream(classByteArray);
             ClassFile.this.posDataInputStream = new PosDataInputStream(posByteArrayInputStream);
 
-            ClassFile.this.magic = new u4(ClassFile.this.posDataInputStream.readInt());
-            if (ClassFile.this.magic.value != ClassFile.MAGIC) {
+            ClassFile.this.magic = ClassFile.this.posDataInputStream.readInt();
+            if (ClassFile.this.magic != ClassFile.MAGIC) {
                 throw new ClassFormatException("The magic number of the byte array is not 0xCAFEBABE");
             }
 
@@ -442,14 +432,14 @@ public class ClassFile {
 
         private void parseClassFileVersion()
                 throws java.io.IOException, ClassFormatException {
-            ClassFile.this.minor_version = new MinorVersion(ClassFile.this.posDataInputStream);
-            ClassFile.this.major_version = new MajorVersion(ClassFile.this.posDataInputStream);
+            ClassFile.this.minor_version = posDataInputStream.readUnsignedShort();
+            ClassFile.this.major_version = posDataInputStream.readUnsignedShort();
         }
 
         private void parseConstantPool()
                 throws java.io.IOException, ClassFormatException {
-            ClassFile.this.constant_pool_count = new CPCount(ClassFile.this.posDataInputStream);
-            final int cp_count = ClassFile.this.constant_pool_count.getValue();
+            ClassFile.this.constant_pool_count = posDataInputStream.readUnsignedShort();;
+            final int cp_count = ClassFile.this.constant_pool_count;
 
             ClassFile.this.constant_pool = new AbstractCPInfo[cp_count];
             short tag;
@@ -523,23 +513,23 @@ public class ClassFile {
 
         private void parseClassDeclaration()
                 throws java.io.IOException, ClassFormatException {
-            ClassFile.this.access_flags = new AccessFlags(ClassFile.this.posDataInputStream);
-            ClassFile.this.this_class = new ThisClass(ClassFile.this.posDataInputStream);
-            ClassFile.this.super_class = new SuperClass(ClassFile.this.posDataInputStream);
+            ClassFile.this.access_flags = new AccessFlags(posDataInputStream.readUnsignedShort());
+            ClassFile.this.this_class = posDataInputStream.readUnsignedShort();
+            ClassFile.this.super_class = posDataInputStream.readUnsignedShort();
 
-            ClassFile.this.interfaces_count = new InterfaceCount(ClassFile.this.posDataInputStream);
-            if (ClassFile.this.interfaces_count.getValue() > 0) {
-                ClassFile.this.interfaces = new Interface[ClassFile.this.interfaces_count.getValue()];
-                for (int i = 0; i < ClassFile.this.interfaces_count.getValue(); i++) {
-                    ClassFile.this.interfaces[i] = new Interface(ClassFile.this.posDataInputStream);
+            ClassFile.this.interfaces_count = posDataInputStream.readUnsignedShort();
+            if (ClassFile.this.interfaces_count > 0) {
+                ClassFile.this.interfaces = new int [ClassFile.this.interfaces_count];
+                for (int i = 0; i < ClassFile.this.interfaces_count; i++) {
+                    ClassFile.this.interfaces[i] = posDataInputStream.readUnsignedShort();
                 }
             }
         }
 
         private void parseFields()
                 throws java.io.IOException, ClassFormatException {
-            ClassFile.this.fields_count = new FieldCount(ClassFile.this.posDataInputStream);
-            final int fieldCount = ClassFile.this.fields_count.getValue();
+            ClassFile.this.fields_count = posDataInputStream.readUnsignedShort();
+            final int fieldCount = ClassFile.this.fields_count;
             if (fieldCount > 0) {
                 ClassFile.this.fields = new FieldInfo[fieldCount];
                 for (int i = 0; i < fieldCount; i++) {
@@ -550,8 +540,8 @@ public class ClassFile {
 
         private void parseMethods()
                 throws java.io.IOException, ClassFormatException {
-            ClassFile.this.methods_count = new MethodCount(ClassFile.this.posDataInputStream);
-            final int methodCount = ClassFile.this.methods_count.getValue();
+            ClassFile.this.methods_count = posDataInputStream.readUnsignedShort();
+            final int methodCount = ClassFile.this.methods_count;
 
             if (methodCount > 0) {
                 ClassFile.this.methods = new MethodInfo[methodCount];
@@ -563,8 +553,8 @@ public class ClassFile {
 
         private void parseAttributes()
                 throws java.io.IOException, ClassFormatException {
-            ClassFile.this.attributes_count = new AttributeCount(ClassFile.this.posDataInputStream);
-            final int attributeCount = ClassFile.this.attributes_count.getValue();
+            ClassFile.this.attributes_count = posDataInputStream.readUnsignedShort();
+            final int attributeCount = ClassFile.this.attributes_count;
             if (attributeCount > 0) {
                 ClassFile.this.attributes = new AttributeInfo[attributeCount];
                 for (int i = 0; i < attributeCount; i++) {

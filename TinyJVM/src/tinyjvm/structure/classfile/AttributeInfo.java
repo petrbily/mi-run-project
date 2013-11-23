@@ -107,34 +107,32 @@ public class AttributeInfo extends ClassComponent {
      */
     public static final String Extended = "[Extended Attr.] ";
     transient private String type;
-    transient u2 attribute_name_index;
-    transient u4 attribute_length;
+    transient int attribute_name_index;
+    transient int attribute_length;
 
     AttributeInfo() {
     }
 
-    AttributeInfo(final u2 nameIndex, final String type, final PosDataInputStream posDataInputStream)
+    AttributeInfo(final int nameIndex, final String type, final PosDataInputStream posDataInputStream)
             throws IOException, ClassFormatException {
         this.startPos = posDataInputStream.getPos() - 2;
 
         this.type = type;
 
-        this.attribute_name_index = new u2();
-        this.attribute_name_index.value = nameIndex.value;
-        this.attribute_length = new u4();
-        this.attribute_length.value = posDataInputStream.readInt();
+        this.attribute_name_index = nameIndex;
+        this.attribute_length = posDataInputStream.readInt();
 
-        this.length = this.attribute_length.value + 6;
+        this.length = this.attribute_length + 6;
     }
 
     static AttributeInfo parse(final PosDataInputStream posDataInputStream, final AbstractCPInfo[] cp)
             throws IOException, ClassFormatException {
         AttributeInfo attr = new AttributeInfo();
 
-        final u2 attrNameIndex = new u2();
-        attrNameIndex.value = posDataInputStream.readUnsignedShort();
-        if (AbstractCPInfo.CONSTANT_Utf8 == cp[attrNameIndex.value].tag.value) {
-            final String type = ((ConstantUtf8Info) cp[attrNameIndex.value]).getValue();
+        final int attrNameIndex;
+        attrNameIndex = posDataInputStream.readUnsignedShort();
+        if (AbstractCPInfo.CONSTANT_Utf8 == cp[attrNameIndex].tag) {
+            final String type = ((ConstantUtf8Info) cp[attrNameIndex]).getValue();
             if (TypeConstantValue.equals(type)) {
                 attr = new AttributeConstantValue(attrNameIndex, type, posDataInputStream);
             } else if (TypeCode.equals(type)) {
@@ -157,7 +155,7 @@ public class AttributeInfo extends ClassComponent {
                 attr = new AttributeExtended(attrNameIndex, Extended + type, posDataInputStream);
             }
         } else {
-            throw new ClassFormatException(String.format("Attribute name_index is not CONSTANT_Utf8. Constant index = %d, type = %d.", attrNameIndex.value, cp[attrNameIndex.value].tag.value));
+            throw new ClassFormatException(String.format("Attribute name_index is not CONSTANT_Utf8. Constant index = %d, type = %d.", attrNameIndex, cp[attrNameIndex].tag));
         }
 
         return attr;
@@ -197,7 +195,7 @@ public class AttributeInfo extends ClassComponent {
      * @return The value of {@code attribute_name_index}
      */
     public int getNameIndex() {
-        return this.attribute_name_index.value;
+        return this.attribute_name_index;
     }
 
     /**
@@ -206,6 +204,6 @@ public class AttributeInfo extends ClassComponent {
      * @return The value of {@code attribute_length}
      */
     public int getAttributeLength() {
-        return this.attribute_length.value;
+        return this.attribute_length;
     }
 }
