@@ -37,7 +37,7 @@ public class ConstantDoubleInfo extends AbstractCPInfo {
         throws IOException
     {
         super();
-        this.tag.value = AbstractCPInfo.CONSTANT_Double;
+        this.tag = AbstractCPInfo.CONSTANT_Double;
 
         this.startPos = posDataInputStream.getPos() - 1;
         this.length = 9;

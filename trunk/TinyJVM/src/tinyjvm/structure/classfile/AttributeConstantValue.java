@@ -28,20 +28,19 @@ import java.io.IOException;
  * </a>
  */
 public class AttributeConstantValue extends AttributeInfo {
-    private transient final u2 constantvalue_index;
+    private transient final int constantvalue_index;
 
-    AttributeConstantValue(final u2 nameIndex, final String type, final PosDataInputStream posDataInputStream)
+    AttributeConstantValue(final int nameIndex, final String type, final PosDataInputStream posDataInputStream)
         throws IOException, ClassFormatException
     {
         super(nameIndex, type, posDataInputStream);
         
-        if (this.attribute_length.value != 2)
+        if (this.attribute_length != 2)
         {
-            throw new ClassFormatException(String.format("The attribute_length of AttributeConstantValue is not 2, it is %d.", this.attribute_length.value));
+            throw new ClassFormatException(String.format("The attribute_length of AttributeConstantValue is not 2, it is %d.", this.attribute_length));
         }
 
-        this.constantvalue_index = new u2();
-        this.constantvalue_index.value = posDataInputStream.readUnsignedShort();
+        this.constantvalue_index = posDataInputStream.readUnsignedShort();
         
         super.checkSize(posDataInputStream.getPos());
     }
@@ -53,6 +52,6 @@ public class AttributeConstantValue extends AttributeInfo {
      */
     public int getConstantValueIndex()
     {
-        return this.constantvalue_index.value;
+        return this.constantvalue_index;
     }
 }

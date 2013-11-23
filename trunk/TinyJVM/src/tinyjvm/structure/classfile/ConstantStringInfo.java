@@ -27,18 +27,17 @@ import java.io.IOException;
  */
 public class ConstantStringInfo extends AbstractCPInfo {
 
-    private final u2 string_index;
+    private final int string_index;
 
     ConstantStringInfo(final PosDataInputStream posDataInputStream)
             throws IOException {
         super();
-        this.tag.value = AbstractCPInfo.CONSTANT_String;
+        this.tag = AbstractCPInfo.CONSTANT_String;
 
         this.startPos = posDataInputStream.getPos() - 1;
         this.length = 3;
 
-        this.string_index = new u2();
-        this.string_index.value = posDataInputStream.readUnsignedShort();
+        this.string_index = posDataInputStream.readUnsignedShort();
     }
 
     @Override
@@ -48,7 +47,7 @@ public class ConstantStringInfo extends AbstractCPInfo {
 
     @Override
     public String getDescription() {
-        return String.format("ConstantStringInfo: Start Position: [%d], length: [%d], value: string_index=[%d].", this.startPos, this.length, this.string_index.value);
+        return String.format("ConstantStringInfo: Start Position: [%d], length: [%d], value: string_index=[%d].", this.startPos, this.length, this.string_index);
     }
 
     /**
@@ -57,6 +56,6 @@ public class ConstantStringInfo extends AbstractCPInfo {
      * @return The value of {@code string_index}
      */
     public int getStringIndex() {
-        return this.string_index.value;
+        return this.string_index;
     }
 }

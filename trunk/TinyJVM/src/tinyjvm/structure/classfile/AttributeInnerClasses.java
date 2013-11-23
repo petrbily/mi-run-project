@@ -33,18 +33,17 @@ import java.io.IOException;
  */
 public class AttributeInnerClasses extends AttributeInfo {
 
-    private transient final u2 number_of_classes;
+    private transient final int number_of_classes;
     private transient Class[] classes;
 
-    AttributeInnerClasses(final u2 nameIndex, final String type, final PosDataInputStream posDataInputStream)
+    AttributeInnerClasses(final int nameIndex, final String type, final PosDataInputStream posDataInputStream)
             throws IOException, ClassFormatException {
         super(nameIndex, type, posDataInputStream);
 
-        this.number_of_classes = new u2();
-        this.number_of_classes.value = posDataInputStream.readUnsignedShort();
-        if (this.number_of_classes.value > 0) {
-            this.classes = new Class[this.number_of_classes.value];
-            for (int i = 0; i < this.number_of_classes.value; i++) {
+        this.number_of_classes = posDataInputStream.readUnsignedShort();
+        if (this.number_of_classes > 0) {
+            this.classes = new Class[this.number_of_classes];
+            for (int i = 0; i < this.number_of_classes; i++) {
                 this.classes[i] = new Class(posDataInputStream);
             }
         }
@@ -58,7 +57,7 @@ public class AttributeInnerClasses extends AttributeInfo {
      * @return The value of {@code number_of_classes}
      */
     public int getNumberOfClasses() {
-        return this.number_of_classes.value;
+        return this.number_of_classes;
     }
 
     /**
@@ -84,24 +83,20 @@ public class AttributeInnerClasses extends AttributeInfo {
      */
     public final class Class extends ClassComponent {
 
-        private transient final u2 inner_class_info_index;
-        private transient final u2 outer_class_info_index;
-        private transient final u2 inner_name_index;
-        private transient final u2 inner_class_access_flags;
+        private transient final int inner_class_info_index;
+        private transient final int outer_class_info_index;
+        private transient final int inner_name_index;
+        private transient final int inner_class_access_flags;
 
         private Class(final PosDataInputStream posDataInputStream)
                 throws IOException {
             this.startPos = posDataInputStream.getPos();
             this.length = 8;
 
-            this.inner_class_info_index = new u2();
-            this.inner_class_info_index.value = posDataInputStream.readUnsignedShort();
-            this.outer_class_info_index = new u2();
-            this.outer_class_info_index.value = posDataInputStream.readUnsignedShort();
-            this.inner_name_index = new u2();
-            this.inner_name_index.value = posDataInputStream.readUnsignedShort();
-            this.inner_class_access_flags = new u2();
-            this.inner_class_access_flags.value = posDataInputStream.readUnsignedShort();
+            this.inner_class_info_index = posDataInputStream.readUnsignedShort();
+            this.outer_class_info_index = posDataInputStream.readUnsignedShort();
+            this.inner_name_index = posDataInputStream.readUnsignedShort();
+            this.inner_class_access_flags = posDataInputStream.readUnsignedShort();
         }
 
         /**
@@ -110,7 +105,7 @@ public class AttributeInnerClasses extends AttributeInfo {
          * @return The value of {@code inner_class_info_index}
          */
         public int getInnerClassInfoIndex() {
-            return this.inner_class_info_index.value;
+            return this.inner_class_info_index;
         }
 
         /**
@@ -119,7 +114,7 @@ public class AttributeInnerClasses extends AttributeInfo {
          * @return The value of {@code outer_class_info_index}
          */
         public int getOuterClassInfoIndex() {
-            return this.outer_class_info_index.value;
+            return this.outer_class_info_index;
         }
 
         /**
@@ -128,7 +123,7 @@ public class AttributeInnerClasses extends AttributeInfo {
          * @return The value of {@code inner_name_index}
          */
         public int getInnerNameIndex() {
-            return this.inner_name_index.value;
+            return this.inner_name_index;
         }
 
         /**
@@ -137,7 +132,7 @@ public class AttributeInnerClasses extends AttributeInfo {
          * @return The value of {@code inner_class_access_flags}
          */
         public int getInnerClassAccessFlags() {
-            return this.inner_class_access_flags.value;
+            return this.inner_class_access_flags;
         }
     }
 }

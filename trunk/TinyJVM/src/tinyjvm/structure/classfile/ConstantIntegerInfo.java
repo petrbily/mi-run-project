@@ -32,7 +32,7 @@ public class ConstantIntegerInfo extends AbstractCPInfo {
     ConstantIntegerInfo(final PosDataInputStream posDataInputStream)
             throws IOException {
         super();
-        this.tag.value = AbstractCPInfo.CONSTANT_Integer;
+        this.tag = AbstractCPInfo.CONSTANT_Integer;
 
         this.startPos = posDataInputStream.getPos() - 1;
         this.length = 5;

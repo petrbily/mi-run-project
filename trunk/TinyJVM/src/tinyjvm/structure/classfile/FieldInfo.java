@@ -29,10 +29,10 @@ import java.io.IOException;
  */
 public class FieldInfo extends ClassComponent {
 
-    private u2 access_flags;
-    private u2 name_index;
-    private u2 descriptor_index;
-    private u2 attributes_count;
+    private int access_flags;
+    private int name_index;
+    private int descriptor_index;
+    private int attributes_count;
     private AttributeInfo[] attributes;
     /**
      * Value for access flag {@code ACC_PUBLIC} for a {@code Field}.
@@ -72,16 +72,12 @@ public class FieldInfo extends ClassComponent {
         this.startPos = posDataInputStream.getPos();
         this.length = -1;
 
-        this.access_flags = new u2();
-        this.access_flags.value = posDataInputStream.readUnsignedShort();
-        this.name_index = new u2();
-        this.name_index.value = posDataInputStream.readUnsignedShort();
-        this.descriptor_index = new u2();
-        this.descriptor_index.value = posDataInputStream.readUnsignedShort();
-        this.attributes_count = new u2();
-        this.attributes_count.value = posDataInputStream.readUnsignedShort();
+        this.access_flags = posDataInputStream.readUnsignedShort();
+        this.name_index = posDataInputStream.readUnsignedShort();
+        this.descriptor_index = posDataInputStream.readUnsignedShort();
+        this.attributes_count = posDataInputStream.readUnsignedShort();
 
-        final int attrCount = this.attributes_count.value;
+        final int attrCount = this.attributes_count;
         if (attrCount > 0) {
             this.attributes = new AttributeInfo[attrCount];
             for (int i = 0; i < attrCount; i++) {
@@ -95,7 +91,7 @@ public class FieldInfo extends ClassComponent {
     private void calculateLength() {
         this.length = 8;
 
-        for (int i = 0; i < this.attributes_count.value; i++) {
+        for (int i = 0; i < this.attributes_count; i++) {
             this.length += this.attributes[i].getLength();
         }
     }
@@ -108,7 +104,7 @@ public class FieldInfo extends ClassComponent {
      * @return The value of {@code access_flags}
      */
     public int getAccessFlags() {
-        return this.access_flags.value;
+        return this.access_flags;
     }
 
     /**
@@ -117,7 +113,7 @@ public class FieldInfo extends ClassComponent {
      * @return The value of {@code name_index}
      */
     public int getNameIndex() {
-        return this.name_index.value;
+        return this.name_index;
     }
 
     /**
@@ -126,7 +122,7 @@ public class FieldInfo extends ClassComponent {
      * @return The value of {@code descriptor_index}
      */
     public int getDescriptorIndex() {
-        return this.descriptor_index.value;
+        return this.descriptor_index;
     }
 
     /**
@@ -135,7 +131,7 @@ public class FieldInfo extends ClassComponent {
      * @return The value of {@code attributes_count}
      */
     public int getAttributesCount() {
-        return this.attributes_count.value;
+        return this.attributes_count;
     }
 
     /**
@@ -163,18 +159,18 @@ public class FieldInfo extends ClassComponent {
         final StringBuilder sb = new StringBuilder(20);
         Boolean isTheFirstModifier = true;
 
-        if ((this.access_flags.value & FieldInfo.ACC_PUBLIC) > 0) {
+        if ((this.access_flags & FieldInfo.ACC_PUBLIC) > 0) {
             sb.append("public");
             isTheFirstModifier = false;
-        } else if ((this.access_flags.value & FieldInfo.ACC_PRIVATE) > 0) {
+        } else if ((this.access_flags & FieldInfo.ACC_PRIVATE) > 0) {
             sb.append("private");
             isTheFirstModifier = false;
-        } else if ((this.access_flags.value & FieldInfo.ACC_PROTECTED) > 0) {
+        } else if ((this.access_flags & FieldInfo.ACC_PROTECTED) > 0) {
             sb.append("protected");
             isTheFirstModifier = false;
         }
 
-        if ((this.access_flags.value & FieldInfo.ACC_STATIC) > 0) {
+        if ((this.access_flags & FieldInfo.ACC_STATIC) > 0) {
             if (isTheFirstModifier == false) {
                 sb.append(' ');
             }
@@ -182,13 +178,13 @@ public class FieldInfo extends ClassComponent {
             isTheFirstModifier = false;
         }
 
-        if ((this.access_flags.value & FieldInfo.ACC_FINAL) > 0) {
+        if ((this.access_flags & FieldInfo.ACC_FINAL) > 0) {
             if (isTheFirstModifier == false) {
                 sb.append(' ');
             }
             sb.append("final");
             isTheFirstModifier = false;
-        } else if ((this.access_flags.value & FieldInfo.ACC_VOLATILE) > 0) {
+        } else if ((this.access_flags & FieldInfo.ACC_VOLATILE) > 0) {
             if (isTheFirstModifier == false) {
                 sb.append(' ');
             }
@@ -196,7 +192,7 @@ public class FieldInfo extends ClassComponent {
             isTheFirstModifier = false;
         }
 
-        if ((this.access_flags.value & FieldInfo.ACC_TRANSIENT) > 0) {
+        if ((this.access_flags & FieldInfo.ACC_TRANSIENT) > 0) {
             if (isTheFirstModifier == false) {
                 sb.append(' ');
             }

@@ -27,12 +27,12 @@ import java.io.IOException;
  */
 public class AttributeSynthetic extends AttributeInfo {
 
-    AttributeSynthetic(final u2 nameIndex, final String type, final PosDataInputStream posDataInputStream)
+    AttributeSynthetic(final int nameIndex, final String type, final PosDataInputStream posDataInputStream)
             throws IOException, ClassFormatException {
         super(nameIndex, type, posDataInputStream);
 
-        if (this.attribute_length.value != 0) {
-            throw new ClassFormatException(String.format("The attribute_length of AttributeSynthetic is not 0, it is %d.", this.attribute_length.value));
+        if (this.attribute_length != 0) {
+            throw new ClassFormatException(String.format("The attribute_length of AttributeSynthetic is not 0, it is %d.", this.attribute_length));
         }
 
         super.checkSize(posDataInputStream.getPos());

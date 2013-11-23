@@ -35,7 +35,7 @@ public class ConstantLongInfo extends AbstractCPInfo {
     ConstantLongInfo(final PosDataInputStream posDataInputStream)
             throws IOException {
         super();
-        this.tag.value = AbstractCPInfo.CONSTANT_Long;
+        this.tag = AbstractCPInfo.CONSTANT_Long;
 
         this.startPos = posDataInputStream.getPos() - 1;
         this.length = 9;

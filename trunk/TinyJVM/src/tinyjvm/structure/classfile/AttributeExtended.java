@@ -31,12 +31,12 @@ public class AttributeExtended extends AttributeInfo {
 
     transient private byte[] rawData;
 
-    AttributeExtended(final u2 nameIndex, final String type, final PosDataInputStream posDataInputStream)
+    AttributeExtended(final int nameIndex, final String type, final PosDataInputStream posDataInputStream)
             throws IOException, ClassFormatException {
         super(nameIndex, type, posDataInputStream);
 
-        if (this.attribute_length.value > 0) {
-            this.rawData = new byte[this.attribute_length.value];
+        if (this.attribute_length > 0) {
+            this.rawData = new byte[this.attribute_length];
             posDataInputStream.read(this.rawData);
         }
 

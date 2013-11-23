@@ -28,21 +28,19 @@ import java.io.IOException;
  */
 public class ConstantNameAndTypeInfo extends AbstractCPInfo {
 
-    private final u2 name_index;
-    private final u2 descriptor_index;
+    private final int name_index;
+    private final int descriptor_index;
 
     ConstantNameAndTypeInfo(final PosDataInputStream posDataInputStream)
             throws IOException {
         super();
-        this.tag.value = AbstractCPInfo.CONSTANT_NameAndType;
+        this.tag = AbstractCPInfo.CONSTANT_NameAndType;
 
         this.startPos = posDataInputStream.getPos() - 1;
         this.length = 5;
 
-        this.name_index = new u2();
-        this.name_index.value = posDataInputStream.readUnsignedShort();
-        this.descriptor_index = new u2();
-        this.descriptor_index.value = posDataInputStream.readUnsignedShort();
+        this.name_index = posDataInputStream.readUnsignedShort();
+        this.descriptor_index = posDataInputStream.readUnsignedShort();
     }
 
     @Override
@@ -52,7 +50,7 @@ public class ConstantNameAndTypeInfo extends AbstractCPInfo {
 
     @Override
     public String getDescription() {
-        return String.format("ConstantNameAndTypeInfo: Start Position: [%d], length: [%d], value: name_index=[%d], descriptor_index=[%d].", this.startPos, this.length, this.name_index.value, this.descriptor_index.value);
+        return String.format("ConstantNameAndTypeInfo: Start Position: [%d], length: [%d], value: name_index=[%d], descriptor_index=[%d].", this.startPos, this.length, this.name_index, this.descriptor_index);
     }
 
     /**
@@ -61,7 +59,7 @@ public class ConstantNameAndTypeInfo extends AbstractCPInfo {
      * @return The value of {@code name_index}
      */
     public int getNameIndex() {
-        return this.name_index.value;
+        return this.name_index;
     }
 
     /**
@@ -70,6 +68,6 @@ public class ConstantNameAndTypeInfo extends AbstractCPInfo {
      * @return The value of {@code descriptor_index}
      */
     public int getDescriptorIndex() {
-        return this.descriptor_index.value;
+        return this.descriptor_index;
     }
 }

@@ -28,25 +28,24 @@ import java.io.IOException;
  */
 public class ConstantUtf8Info extends AbstractCPInfo {
 
-    private final u2 length_utf8;
+    private final int length_utf8;
     private final byte[] bytes;
 
     ConstantUtf8Info(final PosDataInputStream posDataInputStream)
             throws IOException, ClassFormatException {
         super();
-        this.tag.value = AbstractCPInfo.CONSTANT_Utf8;
+        this.tag = AbstractCPInfo.CONSTANT_Utf8;
 
         this.startPos = posDataInputStream.getPos() - 1;
 
-        this.length_utf8 = new u2();
-        this.length_utf8.value = posDataInputStream.readUnsignedShort();
-        this.bytes = new byte[this.length_utf8.value];
+        this.length_utf8 = posDataInputStream.readUnsignedShort();
+        this.bytes = new byte[this.length_utf8];
         final int bytesRead = posDataInputStream.read(this.bytes);
-        if (bytesRead != this.length_utf8.value) {
+        if (bytesRead != this.length_utf8) {
             throw new ClassFormatException("Read bytes for CONSTANT_Utf8 error.");
         }
 
-        super.length = this.length_utf8.value + 1 + 2;
+        super.length = this.length_utf8 + 1 + 2;
     }
 
     @Override
@@ -65,7 +64,7 @@ public class ConstantUtf8Info extends AbstractCPInfo {
      * @return The value of {@code length}
      */
     public int getBytesLength() {
-        return this.length_utf8.value;
+        return this.length_utf8;
     }
 
     /**

@@ -34,18 +34,17 @@ import java.io.IOException;
  */
 public class AttributeLocalVariableTable extends AttributeInfo {
 
-    private transient final u2 local_variable_table_length;
+    private transient final int local_variable_table_length;
     private transient LocalVariableTable[] localVariableTable;
 
-    AttributeLocalVariableTable(final u2 nameIndex, final String type, final PosDataInputStream posDataInputStream)
+    AttributeLocalVariableTable(final int nameIndex, final String type, final PosDataInputStream posDataInputStream)
             throws IOException, ClassFormatException {
         super(nameIndex, type, posDataInputStream);
 
-        this.local_variable_table_length = new u2();
-        this.local_variable_table_length.value = posDataInputStream.readUnsignedShort();
-        if (this.local_variable_table_length.value > 0) {
-            this.localVariableTable = new LocalVariableTable[this.local_variable_table_length.value];
-            for (int i = 0; i < this.local_variable_table_length.value; i++) {
+        this.local_variable_table_length = posDataInputStream.readUnsignedShort();
+        if (this.local_variable_table_length > 0) {
+            this.localVariableTable = new LocalVariableTable[this.local_variable_table_length];
+            for (int i = 0; i < this.local_variable_table_length; i++) {
                 this.localVariableTable[i] = new LocalVariableTable(posDataInputStream);
             }
         }
@@ -59,7 +58,7 @@ public class AttributeLocalVariableTable extends AttributeInfo {
      * @return The value of {@code local_variable_table_length}
      */
     public int getLocalVariableTalbeLength() {
-        return this.local_variable_table_length.value;
+        return this.local_variable_table_length;
     }
 
     /**
@@ -86,27 +85,22 @@ public class AttributeLocalVariableTable extends AttributeInfo {
      */
     public final class LocalVariableTable extends ClassComponent {
 
-        private transient final u2 start_pc;
-        private transient final u2 length_lvt;
-        private transient final u2 name_index;
-        private transient final u2 descriptor_index;
-        private transient final u2 index;
+        private transient final int start_pc;
+        private transient final int length_lvt;
+        private transient final int name_index;
+        private transient final int descriptor_index;
+        private transient final int index;
 
         private LocalVariableTable(final PosDataInputStream posDataInputStream)
                 throws IOException {
             this.startPos = posDataInputStream.getPos();
             super.length = 10;
 
-            this.start_pc = new u2();
-            this.start_pc.value = posDataInputStream.readUnsignedShort();
-            this.length_lvt = new u2();
-            this.length_lvt.value = posDataInputStream.readUnsignedShort();
-            this.name_index = new u2();
-            this.name_index.value = posDataInputStream.readUnsignedShort();
-            this.descriptor_index = new u2();
-            this.descriptor_index.value = posDataInputStream.readUnsignedShort();
-            this.index = new u2();
-            this.index.value = posDataInputStream.readUnsignedShort();
+            this.start_pc = posDataInputStream.readUnsignedShort();
+            this.length_lvt = posDataInputStream.readUnsignedShort();
+            this.name_index = posDataInputStream.readUnsignedShort();
+            this.descriptor_index = posDataInputStream.readUnsignedShort();
+            this.index = posDataInputStream.readUnsignedShort();
         }
 
         /**
@@ -115,7 +109,7 @@ public class AttributeLocalVariableTable extends AttributeInfo {
          * @return The value of {@code start_pc}
          */
         public int getStartPc() {
-            return this.start_pc.value;
+            return this.start_pc;
         }
 
         /**
@@ -124,7 +118,7 @@ public class AttributeLocalVariableTable extends AttributeInfo {
          * @return The value of code {@code length}
          */
         public int getCodeLength() {
-            return this.length_lvt.value;
+            return this.length_lvt;
         }
 
         /**
@@ -133,7 +127,7 @@ public class AttributeLocalVariableTable extends AttributeInfo {
          * @return The value of {@code name_index}
          */
         public int getNameIndex() {
-            return this.name_index.value;
+            return this.name_index;
         }
 
         /**
@@ -142,7 +136,7 @@ public class AttributeLocalVariableTable extends AttributeInfo {
          * @return The value of {@code descriptor_index}
          */
         public int getDescriptorIndex() {
-            return this.descriptor_index.value;
+            return this.descriptor_index;
         }
 
         /**
@@ -151,7 +145,7 @@ public class AttributeLocalVariableTable extends AttributeInfo {
          * @return The value of {@code index}
          */
         public int getIndex() {
-            return this.index.value;
+            return this.index;
         }
     }
 }

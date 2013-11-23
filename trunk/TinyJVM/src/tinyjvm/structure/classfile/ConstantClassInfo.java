@@ -27,18 +27,17 @@ import java.io.IOException;
  */
 public class ConstantClassInfo extends AbstractCPInfo {
 
-    private final u2 name_index;
+    private final int name_index;
 
     ConstantClassInfo(final PosDataInputStream posDataInputStream)
             throws IOException {
         super();
-        this.tag.value = AbstractCPInfo.CONSTANT_Class;
+        this.tag = AbstractCPInfo.CONSTANT_Class;
 
         this.startPos = posDataInputStream.getPos() - 1;
         this.length = 3;
 
-        this.name_index = new u2();
-        this.name_index.value = posDataInputStream.readUnsignedShort();
+        this.name_index = posDataInputStream.readUnsignedShort();
     }
 
     @Override
@@ -48,7 +47,7 @@ public class ConstantClassInfo extends AbstractCPInfo {
 
     @Override
     public String getDescription() {
-        return String.format("ConstantClassInfo: Start Position: [%d], length: [%d], value: name_index = [%d].", this.startPos, this.length, this.name_index.value);
+        return String.format("ConstantClassInfo: Start Position: [%d], length: [%d], value: name_index = [%d].", this.startPos, this.length, this.name_index);
     }
 
     /**
@@ -57,6 +56,6 @@ public class ConstantClassInfo extends AbstractCPInfo {
      * @return The value of {@code name_index}
      */
     public int getNameIndex() {
-        return this.name_index.value;
+        return this.name_index;
     }
 }

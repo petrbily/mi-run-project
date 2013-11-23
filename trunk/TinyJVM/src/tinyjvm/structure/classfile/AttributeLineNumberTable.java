@@ -31,18 +31,17 @@ import java.io.IOException;
  */
 public class AttributeLineNumberTable extends AttributeInfo {
 
-    private transient final u2 line_number_table_length;
+    private transient final int line_number_table_length;
     private transient LineNumberTable[] lineNumberTable;
 
-    AttributeLineNumberTable(final u2 nameIndex, final String type, final PosDataInputStream posDataInputStream)
+    AttributeLineNumberTable(final int nameIndex, final String type, final PosDataInputStream posDataInputStream)
             throws IOException, ClassFormatException {
         super(nameIndex, type, posDataInputStream);
 
-        this.line_number_table_length = new u2();
-        this.line_number_table_length.value = posDataInputStream.readUnsignedShort();
-        if (this.line_number_table_length.value > 0) {
-            this.lineNumberTable = new LineNumberTable[this.line_number_table_length.value];
-            for (int i = 0; i < this.line_number_table_length.value; i++) {
+        this.line_number_table_length = posDataInputStream.readUnsignedShort();
+        if (this.line_number_table_length > 0) {
+            this.lineNumberTable = new LineNumberTable[this.line_number_table_length];
+            for (int i = 0; i < this.line_number_table_length; i++) {
                 this.lineNumberTable[i] = new LineNumberTable(posDataInputStream);
             }
         }
@@ -56,7 +55,7 @@ public class AttributeLineNumberTable extends AttributeInfo {
      * @return The value of {@code line_number_table_length}
      */
     public int getLineNumberTableLength() {
-        return this.line_number_table_length.value;
+        return this.line_number_table_length;
     }
 
     /**
@@ -83,18 +82,16 @@ public class AttributeLineNumberTable extends AttributeInfo {
      */
     public final class LineNumberTable extends ClassComponent {
 
-        private transient final u2 start_pc;
-        private transient final u2 line_number;
+        private transient final int start_pc;
+        private transient final int line_number;
 
         private LineNumberTable(final PosDataInputStream posDataInputStream)
                 throws IOException {
             this.startPos = posDataInputStream.getPos();
             this.length = 4;
 
-            this.start_pc = new u2();
-            this.start_pc.value = posDataInputStream.readUnsignedShort();
-            this.line_number = new u2();
-            this.line_number.value = posDataInputStream.readUnsignedShort();
+            this.start_pc = posDataInputStream.readUnsignedShort();
+            this.line_number = posDataInputStream.readUnsignedShort();
         }
 
         /**
@@ -103,7 +100,7 @@ public class AttributeLineNumberTable extends AttributeInfo {
          * @return The value of {@code start_pc}
          */
         public int getStartPc() {
-            return this.start_pc.value;
+            return this.start_pc;
         }
 
         /**
@@ -112,7 +109,7 @@ public class AttributeLineNumberTable extends AttributeInfo {
          * @return The value of {@code line_number}
          */
         public int getLineNumber() {
-            return this.line_number.value;
+            return this.line_number;
         }
     }
 }

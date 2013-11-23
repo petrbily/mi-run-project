@@ -28,21 +28,19 @@ import java.io.IOException;
  */
 public class ConstantMethodrefInfo extends AbstractCPInfo {
 
-    private final u2 class_index;
-    private final u2 name_and_type_index;
+    private final int class_index;
+    private final int name_and_type_index;
 
     ConstantMethodrefInfo(final PosDataInputStream posDataInputStream)
             throws IOException {
         super();
-        this.tag.value = AbstractCPInfo.CONSTANT_Methodref;
+        this.tag = AbstractCPInfo.CONSTANT_Methodref;
 
         this.startPos = posDataInputStream.getPos() - 1;
         this.length = 5;
 
-        this.class_index = new u2();
-        this.class_index.value = posDataInputStream.readUnsignedShort();
-        this.name_and_type_index = new u2();
-        this.name_and_type_index.value = posDataInputStream.readUnsignedShort();
+        this.class_index = posDataInputStream.readUnsignedShort();
+        this.name_and_type_index = posDataInputStream.readUnsignedShort();
     }
 
     @Override
@@ -52,7 +50,7 @@ public class ConstantMethodrefInfo extends AbstractCPInfo {
 
     @Override
     public String getDescription() {
-        return String.format("ConstantMethodrefInfo: Start Position: [%d], length: [%d], value: class_index=[%d], name_and_type_index=[%d].", this.startPos, this.length, this.class_index.value, this.name_and_type_index.value);
+        return String.format("ConstantMethodrefInfo: Start Position: [%d], length: [%d], value: class_index=[%d], name_and_type_index=[%d].", this.startPos, this.length, this.class_index, this.name_and_type_index);
     }
 
     /**
@@ -61,7 +59,7 @@ public class ConstantMethodrefInfo extends AbstractCPInfo {
      * @return The value of {@code class_index}
      */
     public int getClassIndex() {
-        return this.class_index.value;
+        return this.class_index;
     }
 
     /**
@@ -70,6 +68,6 @@ public class ConstantMethodrefInfo extends AbstractCPInfo {
      * @return The value of {@code name_and_type_index}
      */
     public int getNameAndTypeIndex() {
-        return this.name_and_type_index.value;
+        return this.name_and_type_index;
     }
 }

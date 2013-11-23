@@ -6,8 +6,6 @@
  */
 package tinyjvm.structure.classfile;
 
-import java.io.IOException;
-
 /**
  * Access Flag of a {@code class} or {@code interface}.
  * It is the {@code access_flags} in {@code ClassFile} structure.
@@ -31,7 +29,7 @@ import java.io.IOException;
  * </a>
  */
 
-public class AccessFlags extends U2ClassComponent {
+public class AccessFlags {
 
     /**
      * Value for access flag {@code ACC_PUBLIC}.
@@ -53,10 +51,11 @@ public class AccessFlags extends U2ClassComponent {
      * Value for access flag {@code ACC_ABSTRACT}.
      */
     public static final int ACC_ABSTRACT = 0x0400;
+    
+    public int value;
 
-    AccessFlags(final PosDataInputStream posDis)
-            throws IOException {
-        super(posDis);
+    AccessFlags(int value){
+           this.value = value;
     }
 
     /**
@@ -68,32 +67,32 @@ public class AccessFlags extends U2ClassComponent {
         final StringBuilder sb = new StringBuilder(25);
         Boolean isFirstModifier = true;
 
-        if ((this.value.value & AccessFlags.ACC_PUBLIC) > 0) {
+        if ((this.value & AccessFlags.ACC_PUBLIC) > 0) {
             sb.append("public ");
             isFirstModifier = false;
         }
-        if ((this.value.value & AccessFlags.ACC_FINAL) > 0) {
+        if ((this.value & AccessFlags.ACC_FINAL) > 0) {
             if (isFirstModifier == false) {
                 sb.append(' ');
             }
             sb.append("final ");
             isFirstModifier = false;
         }
-        if ((this.value.value & AccessFlags.ACC_SUPER) > 0) {
+        if ((this.value & AccessFlags.ACC_SUPER) > 0) {
             if (isFirstModifier == false) {
                 sb.append(' ');
             }
             sb.append("super ");
             isFirstModifier = false;
         }
-        if ((this.value.value & AccessFlags.ACC_INTERFACE) > 0) {
+        if ((this.value & AccessFlags.ACC_INTERFACE) > 0) {
             if (isFirstModifier == false) {
                 sb.append(' ');
             }
             sb.append("interface ");
             isFirstModifier = false;
         }
-        if ((this.value.value & AccessFlags.ACC_ABSTRACT) > 0) {
+        if ((this.value & AccessFlags.ACC_ABSTRACT) > 0) {
             if (isFirstModifier == false) {
                 sb.append(' ');
             }
@@ -114,21 +113,21 @@ public class AccessFlags extends U2ClassComponent {
     public String toString() {
         final StringBuilder sb = new StringBuilder(25);
 
-        sb.append(String.format("%04X  (", this.value.value));
+        sb.append(String.format("%04X  (", this.value));
 
-        if ((this.value.value & AccessFlags.ACC_PUBLIC) > 0) {
+        if ((this.value & AccessFlags.ACC_PUBLIC) > 0) {
             sb.append("public ");
         }
-        if ((this.value.value & AccessFlags.ACC_FINAL) > 0) {
+        if ((this.value & AccessFlags.ACC_FINAL) > 0) {
             sb.append("final ");
         }
-        if ((this.value.value & AccessFlags.ACC_SUPER) > 0) {
+        if ((this.value & AccessFlags.ACC_SUPER) > 0) {
             sb.append("super ");
         }
-        if ((this.value.value & AccessFlags.ACC_INTERFACE) > 0) {
+        if ((this.value & AccessFlags.ACC_INTERFACE) > 0) {
             sb.append("interface ");
         }
-        if ((this.value.value & AccessFlags.ACC_ABSTRACT) > 0) {
+        if ((this.value & AccessFlags.ACC_ABSTRACT) > 0) {
             sb.append("abstract ");
         }
 
