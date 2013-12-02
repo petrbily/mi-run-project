@@ -9,6 +9,7 @@ package tinyjvm.structure.classfile;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import tinyjvm.MyLogger;
 
 /**
  * Represents a {@code class} file. A {@code class} file structure has the
@@ -117,9 +118,11 @@ public class ClassFile {
         if (this.methods_count > 0) {
             String mtdReturnType = null;
             String mtdParameters = null;
+            String mtdDescriptor = null;
             for (MethodInfo method : methods) {
                 try {
-                    mtdReturnType = SignatureConvertor.parseMethodReturnType(this.getConstantUtf8Value(method.getDescriptorIndex()));
+                    mtdDescriptor = this.getConstantUtf8Value(method.getDescriptorIndex());
+                    mtdReturnType = SignatureConvertor.parseMethodReturnType(mtdDescriptor);
                 } catch (SignatureException se) {
                     mtdReturnType = String.format("[Unexpected method return type: %s]", this.getConstantUtf8Value(method.getDescriptorIndex()));
                     //System.err.println(se.toString());
@@ -136,13 +139,127 @@ public class ClassFile {
                         mtdReturnType,
                         this.getConstantUtf8Value(method.getNameIndex()),
                         mtdParameters));
+                method.setDescriptor(mtdDescriptor);
                 
                 method.setName(this.getConstantUtf8Value(method.getNameIndex()));
             }
         }
     }
-
-    private String getConstantUtf8Value(final int cpIndex)
+    
+    //Hegladans method TODO - udelat jednu metodu z tehle tri po sobe
+    public String getMethodName(int cpIndex){
+        String retVal = null;
+        if(cpIndex > this.constant_pool_count || cpIndex < 0) return null;
+        AbstractCPInfo tmp = this.constant_pool[cpIndex];
+        if(tmp.getTag() == 10){
+            try{
+                int NameAndTypeIndex = ((ConstantMethodrefInfo) tmp).getNameAndTypeIndex();
+                ConstantNameAndTypeInfo natInfo = (ConstantNameAndTypeInfo) this.constant_pool[NameAndTypeIndex];            
+                retVal = this.getConstantUtf8Value(natInfo.getNameIndex());
+            }catch(ClassFormatException io){
+                        io.printStackTrace();
+            }
+        }
+        return retVal;
+    }
+    
+    //Hegladans method
+    public String getMethodDescription(int cpIndex){
+        String retVal = null;
+        if(cpIndex > this.constant_pool_count || cpIndex < 0) return null;
+        AbstractCPInfo tmp = this.constant_pool[cpIndex];
+        if(tmp.getTag() == 10){
+            try{
+                int NameAndTypeIndex = ((ConstantMethodrefInfo) tmp).getNameAndTypeIndex();
+                ConstantNameAndTypeInfo natInfo = (ConstantNameAndTypeInfo) this.constant_pool[NameAndTypeIndex];            
+                retVal = this.getConstantUtf8Value(natInfo.getDescriptorIndex());
+            }catch(ClassFormatException io){
+                        io.printStackTrace();
+            }
+        }
+        return retVal;
+    }
+    
+    //Hegladans method
+    public String getMethodsClassName(int cpIndex){
+        String retVal = null;
+        if(cpIndex > this.constant_pool_count || cpIndex < 0) return null;
+        AbstractCPInfo tmp = this.constant_pool[cpIndex];
+        if(tmp.getTag() == 10){
+            try{
+                int classIndex = ((ConstantMethodrefInfo) tmp).getClassIndex();            
+                retVal = this.getConstantUtf8Value(((ConstantClassInfo) this.constant_pool[classIndex]).getNameIndex());
+            }catch(ClassFormatException io){
+                        io.printStackTrace();
+            }
+        }
+        return retVal;
+    }
+    
+    //Hegladan's method
+    public String getFieldName(int cpIndex) {
+        String retVal = null;
+        if(cpIndex > this.constant_pool_count || cpIndex < 0) return null;
+        AbstractCPInfo tmp = this.constant_pool[cpIndex];
+        if(tmp.getTag() == 9){
+            try{
+                int NameAndTypeIndex = ((ConstantFieldrefInfo) tmp).getNameAndTypeIndex();
+                ConstantNameAndTypeInfo natInfo = (ConstantNameAndTypeInfo) this.constant_pool[NameAndTypeIndex];            
+                retVal = this.getConstantUtf8Value(natInfo.getNameIndex());
+            }catch(ClassFormatException io){
+                        io.printStackTrace();
+            }
+        }
+        return retVal;
+    }
+    
+    //Hegladan's method
+    public String getClassName(int cpIndex){
+        String retVal = null;
+        if(cpIndex > this.constant_pool_count || cpIndex < 0) return null;
+        AbstractCPInfo tmp = this.constant_pool[cpIndex];
+        if(tmp.getTag() == 7){
+            try{
+                int classNameIndex = ((ConstantClassInfo) tmp).getNameIndex();            
+                retVal = this.getConstantUtf8Value(classNameIndex);
+            }catch(ClassFormatException io){
+                io.printStackTrace();
+            }
+        }
+        return retVal;
+    }
+    
+    //Hegladans method
+    public int getCPTag(final int cpIndex){
+        return this.constant_pool[cpIndex].getTag();
+    }
+    
+    //Hegladans method
+    public String getConstantStringValue(int cpIndex) {
+        AbstractCPInfo cpInfo = this.constant_pool[cpIndex];
+        if(cpInfo instanceof ConstantStringInfo){
+            int index = ((ConstantStringInfo) cpInfo).getStringIndex();
+            try {
+                return getConstantUtf8Value(index);
+            } catch (ClassFormatException ex) {
+                MyLogger.logError(ex.getMessage());
+            }
+        }
+        return null;
+    }
+    
+    //Hegladans method
+    public int getConstantIntegerValue(int cpIndex){
+        AbstractCPInfo cpInfo = this.constant_pool[cpIndex];
+        if(cpInfo instanceof ConstantIntegerInfo){
+            return ((ConstantIntegerInfo) cpInfo).getValue();
+        }else{   
+            MyLogger.logInfo((String.format("Unexpected constant pool type: Integer(%d) expected, but it is '%d'.",AbstractCPInfo.CONSTANT_Integer,this.constant_pool[cpIndex].tag)));
+        }
+        return -1;
+    }
+        
+    public String getConstantUtf8Value(final int cpIndex)
             throws ClassFormatException {
         String returnValue = null;
 
@@ -393,9 +510,9 @@ public class ClassFile {
     }
 
     
-    public MethodInfo getMethod(String methodName) {
+    public MethodInfo getMethod(String methodDeclaration) {
         for (MethodInfo mi : methods) {
-            if(mi.getName().equals(methodName)){
+            if(mi.getMethodDeclaration().equals(methodDeclaration)){
                 return mi;
             }
         }        

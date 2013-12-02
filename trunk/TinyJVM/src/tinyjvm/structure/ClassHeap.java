@@ -8,6 +8,8 @@ package tinyjvm.structure;
 
 import java.io.IOException;
 import java.util.HashMap;
+import tinyjvm.MyLogger;
+import tinyjvm.execution.ExecutionUnit;
 import tinyjvm.structure.classfile.ClassFile;
 import tinyjvm.structure.classfile.ClassFormatException;
 
@@ -17,22 +19,31 @@ import tinyjvm.structure.classfile.ClassFormatException;
  */
 public class ClassHeap {
     
-    private HashMap<String,ClassFile> classHeap;
-    private FilePathManager filePathManager;
+    private static ClassHeap instance;
+    public HashMap<String,ClassFile> classHeap;
     
-    public ClassHeap(FilePathManager filePathManager){
-        //TODO make it expander, not fixied
-        classHeap = new HashMap<String,ClassFile>();
-        this.filePathManager = filePathManager;
+    private ClassHeap(){
+        this.classHeap = new HashMap();
     }
     
-    public ClassFile addClass(String className) throws IOException, ClassFormatException{
-        //TODO create native method for java/...
-        System.out.println("add class: " + className);
-        if(className.contains("java")) return null;
-        String absolutePath = filePathManager.getAbsolutePath(className);
-        System.out.println("absolute class path: " + absolutePath);
+    //Singleton
+    public static ClassHeap getInstance() {
+         if (instance == null) {
+             instance = new ClassHeap();
+         }
+         return instance;
+     }
+    
+    public ClassFile addClass(String className){
+        MyLogger.logInfo("Add class " + className + " to ClassHeap.");
+        if(classHeap.containsKey(className)){
+            MyLogger.logInfo("Classfile " + className + " is already on the heap");
+            return classHeap.get(className);
+        }
+        String absolutePath = FilePathManager.getInstance().getAbsolutePath(className);
+        MyLogger.logInfo("Load classfile from file " + absolutePath);
         ClassFile newClassFile = ClassLoader.getClassFile(absolutePath);
+        MyLogger.logInfo("Classfile " + className + " was successfuly loaded");
         classHeap.put(className, newClassFile);
         return newClassFile;
     }

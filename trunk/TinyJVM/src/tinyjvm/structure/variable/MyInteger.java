@@ -6,8 +6,6 @@
 
 package tinyjvm.structure.variable;
 
-import tinyjvm.structure.classfile.FieldInfo;
-
 /**
  *
  * @author Daniel
@@ -15,8 +13,12 @@ import tinyjvm.structure.classfile.FieldInfo;
 public class MyInteger extends Variable{
     private int value;
 
-    public MyInteger(FieldInfo info){
-        super(info);
+    public MyInteger(){
+        value = 0;
+    }
+    
+    public MyInteger(int value){
+        this.value = value;
     }
     
     public int getValue() {
@@ -29,9 +31,20 @@ public class MyInteger extends Variable{
     
     @Override
     public String getType(){
-        return "Ïnteger";
+        return "Integer";
     }
     
+    public MyInteger add(MyInteger a){
+        return new MyInteger(this.value + a.getValue());
+    }
     
+    public void increment(int a){
+        this.value += a;
+    }
+    
+    @Override
+    public String toString(){
+        return this.value + "";
+    }
     
 }

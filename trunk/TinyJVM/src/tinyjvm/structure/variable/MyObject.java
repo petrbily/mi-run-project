@@ -1,7 +1,7 @@
 package tinyjvm.structure.variable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import tinyjvm.MyLogger;
 import tinyjvm.structure.classfile.ClassFile;
 import tinyjvm.structure.classfile.FieldInfo;
 
@@ -17,12 +17,13 @@ public class MyObject extends Variable{
     public ClassFile classFile;
     public MyObject superObject;
     
-    public MyObject(FieldInfo info, ClassFile classFile, String id){
-        super(info);
+    public MyObject(String id){
+        this.id = id;
+    }
+    
+    public MyObject(ClassFile classFile, String id){
         this.id = id;
         this.classFile = classFile;
-        //TODO execute init class
-
     }
     
     
@@ -35,15 +36,26 @@ public class MyObject extends Variable{
     public String toString(){
         return id;
     }
-
-    //TODO init at runtime
-    private void initInstanceVariables() {
-        int field_count = classFile.getFieldCount().getValue();
-        
-        for(FieldInfo fi : classFile.getFields()){
-            
+    
+    public void putInstanceVar(String key, Variable var){
+        this.instanceVar.put(key, var);
+    }
+    
+    public String putInstanceVarWithCPIndex(int index, Variable var){
+        String key = this.classFile.getFieldName(index);
+        this.instanceVar.put(key, var);
+        MyLogger.logInfo("Put field of name " + key + " to object variables");
+        return key;
+    }
+    
+    public Variable getInstanceVarWithCPIndex(int index){
+        String key = this.classFile.getFieldName(index);
+        Variable retVar = this.instanceVar.get(key);
+        if(retVar == null){
+            MyLogger.logError("Variable " + key + " is not store in the instance variable heap.");
         }
-        
+        MyLogger.logInfo("Get field of name " + key);
+        return retVar;
     }
 
 }
