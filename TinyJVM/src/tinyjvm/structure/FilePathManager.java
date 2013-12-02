@@ -10,9 +10,23 @@ import java.util.regex.Pattern;
  */
 public class FilePathManager {
     
+    private static FilePathManager instance;
+    
     public String rootPath;
     
-    public FilePathManager(File mainFile){
+    private FilePathManager(){
+        rootPath = "/";
+    }
+    
+    //Singleton
+    public static FilePathManager getInstance() {
+         if (instance == null) {
+             instance = new FilePathManager();
+         }
+         return instance;
+     }
+    
+    public void setRootPath(File mainFile){
         this.rootPath = getRootFromFile(mainFile);
     }
     
@@ -25,14 +39,17 @@ public class FilePathManager {
         String [] splitPath = file.getParentFile().getAbsolutePath().split(Pattern.quote(File.separator));
         for(String partPath : splitPath){
             tmpRootPath = tmpRootPath.concat(partPath + "\\");
-            System.out.println("part: " + partPath);
             if(partPath.equals("classes")) return tmpRootPath;
         }
         return null;
     }
     
     public String getAbsolutePath(String relativePath){
+        //If the class file is from java lang make relative path to this class file
         relativePath = relativePath.replaceAll("/", Matcher.quoteReplacement("\\"));
+        if(relativePath.contains("java\\lang\\")){
+            return relativePath + ".class";
+        }
         return rootPath + relativePath + ".class";
     }
 }

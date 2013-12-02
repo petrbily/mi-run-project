@@ -73,6 +73,7 @@ public class MethodInfo extends ClassComponent {
     public static final int ACC_STRICT = 0x0800;
     private String declaration;
     private String name;
+    private String descriptor;
 
     MethodInfo() {
     }
@@ -108,6 +109,22 @@ public class MethodInfo extends ClassComponent {
             this.length += this.attributes[i].getLength();
         }
     }
+    
+    public String getMethodDeclaration(){
+        return this.name + this.descriptor;
+    }
+
+    public String getDescriptor() {
+        return descriptor;
+    }
+
+    public void setDescriptor(String descriptor) {
+        this.descriptor = descriptor;
+    }
+    
+    
+    
+    
 
     ///////////////////////////////////////////////////////////////////////////
     // Get raw data

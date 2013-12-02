@@ -12,9 +12,22 @@ import tinyjvm.structure.classfile.ClassFile;
  */
 public class ObjectHeap {
     
-    private SecureRandom random = new SecureRandom();
-    public HashMap<String,MyObject> objectHeap = new HashMap<String,MyObject>();
+    private SecureRandom random;
+    public HashMap<String,MyObject> objectHeap;
+    private static ObjectHeap instance;
     
+    private ObjectHeap(){
+        this.objectHeap = new HashMap();
+        this.random = new SecureRandom();
+    }
+    
+    //Singleton
+    public static ObjectHeap getInstance() {
+         if (instance == null) {
+             instance = new ObjectHeap();
+         }
+         return instance;
+     }
     
     public MyObject createObject(ClassFile classFile){
         
@@ -23,7 +36,7 @@ public class ObjectHeap {
             randID = getReference();
         }
         
-        MyObject obj = new MyObject(null, classFile, randID); //TODO - solve first param FieldInfo
+        MyObject obj = new MyObject(classFile, randID);
         objectHeap.put(randID, obj);
         
         return obj;
