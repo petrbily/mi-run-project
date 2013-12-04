@@ -34,8 +34,8 @@ public class MyInteger extends Variable{
         return "Integer";
     }
     
-    public MyInteger add(MyInteger a){
-        return new MyInteger(this.value + a.getValue());
+    public MyInteger add(MyInteger otherInt){
+        return new MyInteger(this.value + otherInt.getValue());
     }
     
     public void increment(int a){
@@ -45,6 +45,14 @@ public class MyInteger extends Variable{
     @Override
     public String toString(){
         return this.value + "";
+    }
+
+    public Variable sub(MyInteger otherInt) {
+        return new MyInteger(this.value - otherInt.getValue());
+    }
+
+    public Variable div(MyInteger otherInt) {
+        return new MyInteger(this.value / otherInt.getValue());
     }
     
 }
