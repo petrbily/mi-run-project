@@ -36,7 +36,7 @@ public class ObjectHeap {
             randID = getReference();
         }
         
-        MyObject obj = new MyObject(classFile, randID);
+        MyObject obj = new MyObject(randID);
         objectHeap.put(randID, obj);
         
         return obj;

@@ -1,0 +1,16 @@
+Starts at: Sat Dec 07 16:23:42 CET 2013
+rootPath: C:\Users\Daniel\Documents\NetBeansProjects\KnapsackSolver\build\classes\
+Int from ancest: 10
+Best price: 2033
+Result knapsack: 10011001001000110000
+Ends at: Sat Dec 07 16:24:08 CET 2013
+=26sec
+
+---odstranen classfile z objectu a smazany pristupove metody k instanceVar----
+Starts at: Sat Dec 07 16:36:07 CET 2013
+rootPath: C:\Users\Daniel\Documents\NetBeansProjects\KnapsackSolver\build\classes\
+Best price: 2033
+Knapstack solution: 10011001001000110000
+Ends at: Sat Dec 07 16:36:29 CET 2013
+=22sec
+

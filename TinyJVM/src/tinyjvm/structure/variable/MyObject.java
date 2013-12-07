@@ -14,18 +14,11 @@ public class MyObject extends Variable{
     
     public String id;
     public HashMap<String,Variable> instanceVar = new HashMap<String,Variable>();
-    public ClassFile classFile;
     public MyObject superObject;
     
     public MyObject(String id){
         this.id = id;
     }
-    
-    public MyObject(ClassFile classFile, String id){
-        this.id = id;
-        this.classFile = classFile;
-    }
-    
     
     @Override
     public String getType(){
@@ -41,6 +34,7 @@ public class MyObject extends Variable{
         this.instanceVar.put(key, var);
     }
     
+    /*
     public String putInstanceVarWithCPIndex(int index, Variable var){
         String key = this.classFile.getFieldName(index);
         this.instanceVar.put(key, var);
@@ -57,5 +51,6 @@ public class MyObject extends Variable{
         MyLogger.logInfo("Get field of name " + key);
         return retVar;
     }
+    */
 
 }

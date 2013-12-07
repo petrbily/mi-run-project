@@ -2,6 +2,7 @@ package tinyjvm;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -31,6 +32,8 @@ public class TinyJVM{
             System.out.println("Invalid arguments");
         }
         
+        Date date = new Date();
+        System.out.println("Starts at: " + date);
         File mainFile = new File(args[0]);
         FilePathManager filePathManager = FilePathManager.getInstance();
         filePathManager.setRootPath(mainFile);
@@ -43,13 +46,15 @@ public class TinyJVM{
         ObjectHeap objectHeap = ObjectHeap.getInstance();
         ClassFile testClass = classHeap.getClass("knapsacksolver/KnapsackSolver");
         
-        Frame testFrame = new Frame(testClass, objectHeap.createObject(testClass),testClass.getMethod("main([Ljava/lang/String;)V"));
-        
+        Frame testFrame = new Frame(testClass,testClass.getMethod("main([Ljava/lang/String;)V"));
+        testFrame.localVariable[0] = objectHeap.createObject(testClass);
         VMStack vmStack = new VMStack();
         vmStack.frameStack.push(testFrame);
         
         ExecutionUnit.execute(vmStack.frameStack);
         
+        date = new Date();
+        System.out.println("Ends at: " + date);
         //classHeap.printClassHeap();
         
     }
