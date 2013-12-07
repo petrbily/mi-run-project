@@ -1,12 +1,6 @@
 package tinyjvm.structure;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Stack;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import tinyjvm.MyLogger;
 import tinyjvm.structure.classfile.ClassFile;
 import tinyjvm.structure.classfile.ClassFormatException;
@@ -30,7 +24,7 @@ public class Frame {
     private String descriptor;
     public ClassFile classFile;
     
-    public Frame(ClassFile classFile, MyObject thisObject, MethodInfo methodInfo){
+    public Frame(ClassFile classFile, MethodInfo methodInfo){
         this.classFile = classFile;
         //TODO exception kdyz nebude metoda existovat
         this.methodInfo = methodInfo;//classFile.getMethod(methodName);
@@ -43,7 +37,7 @@ public class Frame {
         if((this.methodInfo.getAccessFlags() & MethodInfo.ACC_NATIVE) == MethodInfo.ACC_NATIVE){
             this.localVariable = new Variable[getArgsCount() + 1];
         }else this.localVariable = new Variable[methodInfo.getMaxLocals()];
-        this.localVariable[0] = thisObject;
+        //this.localVariable[0] = thisObject;
     }
     
     public byte [] getMethodCode(){

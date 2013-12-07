@@ -6,29 +6,19 @@
 
 package tinyjvm.execution;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import library.FileIO;
 import tinyjvm.MyLogger;
 import tinyjvm.structure.ClassHeap;
-import tinyjvm.structure.FilePathManager;
 import tinyjvm.structure.Frame;
+import tinyjvm.structure.MethodArea;
+import tinyjvm.structure.MethodClassStruct;
 import tinyjvm.structure.ObjectHeap;
-import tinyjvm.structure.VMStack;
 import tinyjvm.structure.classfile.AbstractCPInfo;
 import tinyjvm.structure.classfile.ClassFile;
-import tinyjvm.structure.classfile.ClassFormatException;
-import tinyjvm.structure.classfile.ConstantMethodrefInfo;
 import tinyjvm.structure.classfile.MethodInfo;
 import tinyjvm.structure.variable.MyArray;
 import tinyjvm.structure.variable.MyInteger;
@@ -48,6 +38,7 @@ public class ExecutionUnit {
     public static final short CONSTANT_Invoke_Interface = 2;
     
     public static ClassHeap classHeap = ClassHeap.getInstance();
+    public static ObjectHeap objectHeap = ObjectHeap.getInstance();
     
     public static Variable execute(Stack<Frame> frameStack){
         
@@ -222,13 +213,14 @@ public class ExecutionUnit {
                     MyLogger.logInfo("Putfield CP[" + bi + "]");
                     var = frame.frameStack.pop();
                     object = frame.popMyObjectFromStack();
-                    String fieldName = object.putInstanceVarWithCPIndex(bi, var);
+                    String fieldName = frame.classFile.getFieldName(bi);
+                    object.instanceVar.put(fieldName, var);
                     break;
                 case opcodeValue.op_getfield:
                     //get a field value of an object objectref, where the field is identified by field reference in the constant pool index (index1 << 8 + index2)
                     bi = getIndex(bai);
-                    object = frame.popMyObjectFromStack();
-                    frame.frameStack.push(object.getInstanceVarWithCPIndex(bi));
+                    object = frame.popMyObjectFromStack();           
+                    frame.frameStack.push(object.instanceVar.get(frame.classFile.getFieldName(bi)));
                     break;
                                      
                 //*******ARRAY INSTRUCTIONS*******
@@ -463,7 +455,9 @@ public class ExecutionUnit {
             classFile = classHeap.addClass(methodClass);
             if(classFile == null){ MyLogger.logError(methodClass + " class doesn't exist.");}
         }
-        Frame invokeFrame = new Frame(classFile,null, classFile.getMethod(methodName + methodDescription));
+        //find method
+        MethodClassStruct methodClassInfo = findMethod(classFile, methodName + methodDescription);
+        Frame invokeFrame = new Frame(methodClassInfo.classFile, methodClassInfo.methodInfo);
         
         //add method arguments to invoke frame locals
         String descriptor = invokeFrame.getDescriptor();
@@ -493,10 +487,9 @@ public class ExecutionUnit {
         }
         
         frameStack.push(invokeFrame);
-        //TODO store super Object
         Variable retVal = ExecutionUnit.execute(frameStack);
         frameStack.pop();
-        MyLogger.logInfo("Continuing the execution method " + actualFrame.classFile.getThisClassName() + "." + actualFrame.methodInfo.getMethodDeclaration());
+        MyLogger.logInfo("Continuing of execution method " + actualFrame.classFile.getThisClassName() + "." + actualFrame.methodInfo.getMethodDeclaration());
         if(retVal != null){
             MyLogger.logInfo("Add return value to the stack.");
             actualFrame.frameStack.push(retVal);
@@ -522,7 +515,7 @@ public class ExecutionUnit {
     private static void createNewObject(Frame frame, int classCPIndex){
         String className = frame.classFile.getClassName(classCPIndex);
         ClassFile classFile = classHeap.addClass(className);
-        frame.frameStack.push(ObjectHeap.getInstance().createObject(classFile));
+        frame.frameStack.push(objectHeap.createObject(classFile));
         MyLogger.logInfo("Instance of " + className + " was successfuly added to frame stack.");
     }
     
@@ -597,4 +590,24 @@ public class ExecutionUnit {
         
         return null;
     }
+
+    private static MethodClassStruct findMethod(ClassFile classFile, String methodDeclaration) {
+        if(classFile == null){
+            MyLogger.logError("Method " + methodDeclaration + " doesn't exist.");
+            System.exit(404);
+        }
+        String methKey = classFile.getThisClassName() + "." + methodDeclaration;
+        MethodInfo foundMethod = MethodArea.methodArea.get(methKey);
+        if(foundMethod == null){
+            ClassFile superClass = ClassHeap.getInstance().addClass(classFile.getSuperClassName());
+            return findMethod(superClass, methodDeclaration);
+        }     
+        return new MethodClassStruct(classFile, foundMethod);
+    }
+
+        /*
+    private static String getMethodIdentificator(ClassFile classFile, String methodDeclaration){
+        return classFile.getThisClassName() + "." + methodDeclaration;
+    }
+                */
 }

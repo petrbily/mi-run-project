@@ -417,7 +417,20 @@ public class ClassFile {
     public int getSuperClass() {
         return this.super_class;
     }
-
+    
+    //Hegladans method
+    public String getSuperClassName(){
+        ConstantClassInfo conClass = (ConstantClassInfo)this.constant_pool[super_class];
+        if(conClass == null) return null;
+        String className = null;
+        try{
+            className = this.getConstantUtf8Value(conClass.getNameIndex());
+        }catch(ClassFormatException cfe){
+            cfe.printStackTrace();
+        }
+        return className;
+    }
+    
     /**
      * Get the {@code interfaces_count} of the {@code ClassFile} structure.
      *
@@ -511,6 +524,7 @@ public class ClassFile {
 
     
     public MethodInfo getMethod(String methodDeclaration) {
+        //Todo change methods to HashMap
         for (MethodInfo mi : methods) {
             if(mi.getMethodDeclaration().equals(methodDeclaration)){
                 return mi;
