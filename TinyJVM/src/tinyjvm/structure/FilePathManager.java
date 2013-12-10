@@ -30,6 +30,20 @@ public class FilePathManager {
         this.rootPath = getRootFromFile(mainFile);
     }
     
+    public String getClassIdentifikator(String path){
+        String classIdentifikator = "";
+        String [] splitPath = path.split(Pattern.quote(File.separator));
+        for (int i = splitPath.length - 1; i > 1; i--) {
+            if(splitPath[i].equals("class")) continue;
+            classIdentifikator = splitPath[i].concat(classIdentifikator);
+            if(splitPath[i - 1].equals("classes")){
+                return classIdentifikator.replaceAll(".class", "");
+            }
+            else classIdentifikator = "/".concat(classIdentifikator);
+        }
+        return null;
+    }
+    
     public String getRootPath(){
         return rootPath;
     }

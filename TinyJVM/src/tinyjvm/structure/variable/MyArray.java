@@ -17,9 +17,9 @@ public class MyArray extends Variable{
     private String type;
     private Variable[] array;
     
-    public MyArray(MyInteger count, String type){
+    public MyArray(int count, String type){
         this.type = type;
-        this.array = new Variable[count.getValue()];
+        this.array = new Variable[count];
     }
     
     @Override
@@ -27,17 +27,17 @@ public class MyArray extends Variable{
         return "Array";
     }
 
-    public void addValue(MyInteger index, Variable value) {
-        array[index.getValue()] = value;
+    public void addValue(int index, Variable value) {
+        array[index] = value;
     }
     
-    public Variable getValue(MyInteger index){
-        return array[index.getValue()];
+    public Variable getValue(int index){
+        return array[index];
     }
     
-    public MyInteger getMyIntegerValue(MyInteger index){
+    public MyInteger getMyIntegerValue(int index){
         try{
-            return (MyInteger)array[index.getValue()];
+            return (MyInteger)array[index];
         }catch(ClassCastException ex){
             MyLogger.logError("ClassCastException: Try to get MyInteger from array of " + type + " type.");
         }

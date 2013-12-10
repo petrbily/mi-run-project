@@ -14,3 +14,13 @@ Knapstack solution: 10011001001000110000
 Ends at: Sat Dec 07 16:36:29 CET 2013
 =22sec
 
+---asi spatnej den
+Starts at: Tue Dec 10 15:32:28 CET 2013
+rootPath: C:\Users\Daniel\Documents\NetBeansProjects\KnapsackSolver\build\classes\
+class identifikator: knapsacksolver/KnapsackSolver
+something
+something
+Best price: 2033
+Knapstack solution: 10011001001000110000
+Ends at: Tue Dec 10 15:33:02 CET 2013
+=34sec
