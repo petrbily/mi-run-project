@@ -229,7 +229,7 @@ public class ExecutionUnit {
                     bi = getIndex(bai);
                     MyLogger.logInfo("Newarray CP[" + bi + "]");
                     String className = frame.classFile.getClassName(bi);
-                    frame.frameStack.push(new MyArray(frame.popMyIntegerFromStack(), className));
+                    frame.frameStack.push(new MyArray(frame.popMyIntegerFromStack().getValue(), className));
                     break;
                 case opcodeValue.op_newarray:
                     //create new array with count elements of primitive type identified by atype
@@ -237,7 +237,7 @@ public class ExecutionUnit {
                     MyLogger.logInfo("Newarray with primitive type " + bi);
                     //type 10 is integer
                     if(bi == 10){
-                       frame.frameStack.push(new MyArray(frame.popMyIntegerFromStack(), "Integer"));
+                       frame.frameStack.push(new MyArray(frame.popMyIntegerFromStack().getValue(), "Integer"));
                     }else{
                         MyLogger.logError("Unknown type: " + bi);
                     }                
@@ -254,7 +254,7 @@ public class ExecutionUnit {
                     index = frame.popMyIntegerFromStack();
                     array = frame.popMyArrayFromStack();
                     MyLogger.logInfo("Store int value " + val1.getValue() + " to index " + index.getValue());
-                    array.addValue(index, val1);
+                    array.addValue(index.getValue(), val1);
                     break;
                 case opcodeValue.op_aastore:
                     //arrayref, index, value →	: store into a reference in an array
@@ -262,21 +262,21 @@ public class ExecutionUnit {
                     index = frame.popMyIntegerFromStack();
                     array = frame.popMyArrayFromStack();
                     MyLogger.logInfo("Store Variable value of type " + var.getType() + " to index " + index.getValue());
-                    array.addValue(index, var);
+                    array.addValue(index.getValue(), var);
                     break;
                 case opcodeValue.op_aaload:
                     //load onto the stack a reference from an array
                     MyLogger.logInfo("Load Variable from an array");
                     index = frame.popMyIntegerFromStack();
                     array = frame.popMyArrayFromStack();
-                    frame.frameStack.push(array.getValue(index));
+                    frame.frameStack.push(array.getValue(index.getValue()));
                     break;
                 case opcodeValue.op_iaload:
                     //load an int from an array
                     MyLogger.logInfo("Load int value from an array");
                     index = frame.popMyIntegerFromStack();
                     array = frame.popMyArrayFromStack();
-                    frame.frameStack.push(array.getMyIntegerValue(index));
+                    frame.frameStack.push(array.getMyIntegerValue(index.getValue()));
                     break;
                 case opcodeValue.op_astore:
                     //objectref → : store a reference into a local variable #index
@@ -383,6 +383,18 @@ public class ExecutionUnit {
                     val1 = frame.popMyIntegerFromStack();
                     MyLogger.logInfo("If " + val1.getValue() + " == " + 0 + " goto " + branch);
                     if(val1.getValue() == 0){
+                        //set stream to proper position
+                        bi = bai.getPos();
+                        bai.reset();
+                        bai.skip(branch + bi - 3);
+                    }
+                    break;
+                case opcodeValue.op_ifle:
+                    //if value is less than or equal to 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+                    branch = (short) getIndex(bai);
+                    val1 = frame.popMyIntegerFromStack();
+                    MyLogger.logInfo("If " + val1.getValue() + " <= " + 0 + " goto " + branch);
+                    if(val1.getValue() <= 0){
                         //set stream to proper position
                         bi = bai.getPos();
                         bai.reset();
@@ -575,9 +587,9 @@ public class ExecutionUnit {
             String str = frame.localVariable[1].toString();
             MyLogger.logInfo("Split string: " + myString.toString());
             String [] splitString = myString.toString().split(str);
-            MyArray retVal = new MyArray(new MyInteger(splitString.length), "String");
+            MyArray retVal = new MyArray(splitString.length, "String");
             for (int i = 0; i < splitString.length; i++) {
-                retVal.addValue(new MyInteger(i), new MyString(splitString[i]));
+                retVal.addValue(i, new MyString(splitString[i]));
             }
             return retVal;
         }else if(methodDescriptor.equals("java/lang/Integer.valueOf(Ljava/lang/String;)Ljava/lang/Integer;")){
