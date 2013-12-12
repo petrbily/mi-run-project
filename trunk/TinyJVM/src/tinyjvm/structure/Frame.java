@@ -2,6 +2,7 @@ package tinyjvm.structure;
 
 import java.util.Stack;
 import tinyjvm.MyLogger;
+import tinyjvm.structure.classfile.AttributeCode.ExceptionTable;
 import tinyjvm.structure.classfile.ClassFile;
 import tinyjvm.structure.classfile.ClassFormatException;
 import tinyjvm.structure.classfile.MethodInfo;
@@ -23,6 +24,7 @@ public class Frame {
     public String methodName;
     private String descriptor;
     public ClassFile classFile;
+    public ExceptionTable[] exceptionTable;
     
     public Frame(ClassFile classFile, MethodInfo methodInfo){
         this.classFile = classFile;
@@ -36,7 +38,10 @@ public class Frame {
         }
         if((this.methodInfo.getAccessFlags() & MethodInfo.ACC_NATIVE) == MethodInfo.ACC_NATIVE){
             this.localVariable = new Variable[getArgsCount() + 1];
-        }else this.localVariable = new Variable[methodInfo.getMaxLocals()];
+        }else{
+            this.localVariable = new Variable[methodInfo.getMaxLocals()];
+            this.exceptionTable = this.methodInfo.getCode().getExceptionTable();
+        }
         //this.localVariable[0] = thisObject;
     }
     
@@ -101,5 +106,10 @@ public class Frame {
             }
         }
         return retVal;
+    }
+    
+    @Override
+    public String toString(){
+        return this.classFile.getThisClassName() + "." + this.methodName + this.getDescriptor();
     }
 }

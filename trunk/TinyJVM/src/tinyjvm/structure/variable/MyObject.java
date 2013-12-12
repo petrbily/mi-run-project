@@ -13,11 +13,24 @@ import tinyjvm.structure.classfile.FieldInfo;
 public class MyObject extends Variable{
     
     public String id;
+    public String className;
     public HashMap<String,Variable> instanceVar = new HashMap<String,Variable>();
-    public MyObject superObject;
+    //public MyObject superObject;
     
+    /*
     public MyObject(String id){
         this.id = id;
+    }
+    */
+    
+    public MyObject(String id, String className){
+        this.id = id;
+        this.className = className;
+    }
+    
+    public MyObject(String id, String className, HashMap<String,Variable> instanceVar){
+        this(id, className);
+        this.instanceVar = instanceVar;
     }
     
     @Override
