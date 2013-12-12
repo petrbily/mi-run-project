@@ -141,6 +141,10 @@ public class AttributeCode extends AttributeInfo {
         }
         return et;
     }
+    
+    public ExceptionTable[] getExceptionTable(){
+        return this.exceptionTable;
+    }
 
     /**
      * Get the value of {@code attributes_count}.

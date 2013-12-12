@@ -121,8 +121,11 @@ public class MethodInfo extends ClassComponent {
     public void setDescriptor(String descriptor) {
         this.descriptor = descriptor;
     }
-    
-    
+
+    public AttributeCode getCode() {
+        return code;
+    }
+      
     
     
 

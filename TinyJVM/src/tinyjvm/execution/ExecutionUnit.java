@@ -18,9 +18,13 @@ import tinyjvm.structure.MethodArea;
 import tinyjvm.structure.MethodClassStruct;
 import tinyjvm.structure.ObjectHeap;
 import tinyjvm.structure.classfile.AbstractCPInfo;
+import tinyjvm.structure.classfile.AttributeCode.ExceptionTable;
+import tinyjvm.structure.classfile.AttributeExceptions;
+import tinyjvm.structure.classfile.AttributeInfo;
 import tinyjvm.structure.classfile.ClassFile;
 import tinyjvm.structure.classfile.MethodInfo;
 import tinyjvm.structure.variable.MyArray;
+import tinyjvm.structure.variable.MyException;
 import tinyjvm.structure.variable.MyInteger;
 import tinyjvm.structure.variable.MyObject;
 import tinyjvm.structure.variable.MyString;
@@ -51,6 +55,8 @@ public class ExecutionUnit {
         
         final byte[] code = frame.getMethodCode();
         
+        
+        
         MyByteArrayInputStream bai = new MyByteArrayInputStream(code);
      
         //Helpful variables
@@ -62,6 +68,7 @@ public class ExecutionUnit {
         MyArray array;
         MyObject object;
         Variable var;
+        MyException exception;
         
         while(bai.getPos() < code.length){
             int op = bai.read();
@@ -69,7 +76,7 @@ public class ExecutionUnit {
             switch(op){
                 case opcodeValue.op_bipush:
                     //push a byte onto the stack as an integer value
-                    bi = bai.read();
+                    bi = (byte)bai.read();
                     MyLogger.logInfo("bipush " + bi);
                     frame.frameStack.push(new MyInteger(bi));
                     break;
@@ -310,19 +317,28 @@ public class ExecutionUnit {
                     //invoke instance method on object objectref, where the method is identified by method reference index in constant pool (indexbyte1 << 8 + indexbyte2)
                     bi = getIndex(bai);
                     MyLogger.logInfo("invokespecial CP[" + bi + "]");
-                    ExecuteInvokeSpecial(frameStack, bi);
+                    exception = ExecuteInvokeVirtual(frameStack, bai, bi, CONSTANT_Invoke_Special);
+                    if(exception != null){
+                        return exception;
+                    }
                     break;
                 case opcodeValue.op_invokevirtual:
                     //invoke virtual method on object objectref, where the method is identified by method reference index in constant pool (indexbyte1 << 8 + indexbyte2)
                     bi = getIndex(bai);
                     MyLogger.logInfo("invokevirtual CP[" + bi + "]");
-                    ExecuteInvokeVirtual(frameStack, bi, CONSTANT_Invoke_Virtual);
+                    exception = ExecuteInvokeVirtual(frameStack, bai, bi, CONSTANT_Invoke_Virtual);
+                    if(exception != null){
+                        return exception;
+                    }
                     break;
                 case opcodeValue.op_invokestatic:
                     //invoke a static method, where the method is identified by method reference index in constant pool (indexbyte1 << 8 + indexbyte2)
                     bi = getIndex(bai);
                     MyLogger.logInfo("invokestatic CP[" + bi + "]");
-                    ExecuteInvokeVirtual(frameStack, bi, CONSTANT_Invoke_Static);
+                    exception = ExecuteInvokeVirtual(frameStack, bai, bi, CONSTANT_Invoke_Static);
+                    if(exception != null){
+                        return exception;
+                    }
                     break;
                 case opcodeValue.op_new:
                     //create new object of type identified by class reference in constant pool index (indexbyte1 << 8 + indexbyte2)
@@ -401,6 +417,18 @@ public class ExecutionUnit {
                         bai.skip(branch + bi - 3);
                     }
                     break;
+                case opcodeValue.op_ifge:
+                    //if value is greater than or equal to 0, branch to instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
+                    branch = (short) getIndex(bai);
+                    val1 = frame.popMyIntegerFromStack();
+                    MyLogger.logInfo("If " + val1.getValue() + " >= " + 0 + " goto " + branch);
+                    if(val1.getValue() >= 0){
+                        //set stream to proper position
+                        bi = bai.getPos();
+                        bai.reset();
+                        bai.skip(branch + bi - 3);
+                    }
+                    break;
                     
                 case opcodeValue.op_goto:
                     //goes to another instruction at branchoffset (signed short constructed from unsigned bytes branchbyte1 << 8 + branchbyte2)
@@ -423,6 +451,13 @@ public class ExecutionUnit {
                     val1.increment(incr);
                     break;
                     
+                //*******EXCEPTION**************
+                case opcodeValue.op_athrow:
+                    //throws an error or exception
+                    MyLogger.logInfo("throw exception");
+                    exception = new MyException(frame.popMyObjectFromStack());
+                    return exception;
+                    
                 //*******RETURN STATEMENTS******
                 case opcodeValue.op_return:
                     //return void from method
@@ -437,24 +472,16 @@ public class ExecutionUnit {
                     MyLogger.logInfo("return reference");
                     return frame.frameStack.pop();
                 default:
-                    MyLogger.logError(frame.methodName + ":Unsupported instruction op: " + Integer.toHexString(op) + " at " + bai.getPos());
+                    MyLogger.logError(frame.toString() + ":Unsupported instruction op: " + Integer.toHexString(op) + " at " + bai.getPos());
                     System.exit(1);
+                    
                     
             }
         }
         return null;
     }
-
-    private static void ExecuteInvokeSpecial(Stack<Frame> frameStack, int methodCPIndex) {
-        Frame actualFrame = frameStack.lastElement();
-        String methodClass = actualFrame.classFile.getMethodsClassName(methodCPIndex);
-   
-        //add class file representation to ClassHeap
-        ClassFile classFile = classHeap.addClass(methodClass); 
-        ExecuteInvokeVirtual(frameStack, methodCPIndex, CONSTANT_Invoke_Special);
-    }
     
-    private static void ExecuteInvokeVirtual(Stack<Frame> frameStack, int methodCPIndex, int type) {
+    private static MyException ExecuteInvokeVirtual(Stack<Frame> frameStack, MyByteArrayInputStream code, int methodCPIndex, int type) {
         //TODO zakomponovat do MethodInfo tridy
         Frame actualFrame = frameStack.lastElement();
         String methodName = actualFrame.classFile.getMethodName(methodCPIndex);
@@ -475,6 +502,7 @@ public class ExecutionUnit {
         String descriptor = invokeFrame.getDescriptor();
         descriptor = processMethodDescriptor(descriptor);
         int index = descriptor.length();
+        if(type == CONSTANT_Invoke_Static) index--;
         for (char c : descriptor.toCharArray()) {
             switch (c) {
                 case 'L':
@@ -495,17 +523,69 @@ public class ExecutionUnit {
             //invokeFrame.localVariable[0] = actualFrame.popMyObjectFromStack();
             invokeFrame.localVariable[0] = actualFrame.frameStack.pop();
         }else if(type == CONSTANT_Invoke_Static){
-            invokeFrame.localVariable[0] = null;
+            //TODO - remove this
+            //invokeFrame.localVariable[0] = null;
         }
         
         frameStack.push(invokeFrame);
         Variable retVal = ExecutionUnit.execute(frameStack);
         frameStack.pop();
+        //Exceptions process
+        if(retVal instanceof MyException){
+            String exceptionClass = ((MyException)retVal).className;
+            boolean catched = false;
+            if (actualFrame.exceptionTable != null) {
+                for (ExceptionTable et : actualFrame.exceptionTable) {
+                    if (et.getCatchType() != 0 && code.getPos() > et.getStartPc() && code.getPos() <= et.getEndPc()) {
+                        String catchType = actualFrame.classFile.getClassName(et.getCatchType());
+                        
+                        do {
+                            if (catchType.equals(exceptionClass)) {
+                                code.reset();
+                                code.skip(et.getHandlerPc());
+                                catched = true;
+                                break;
+                            } else {
+                                exceptionClass = classHeap.getClass(exceptionClass).getSuperClassName();
+                            }
+                        } while (!exceptionClass.equals("java/lang/Object"));
+                      if(catched) break;
+                     
+                    }
+                }
+            }
+            //throw again
+            /*
+            for (int i = 0; i < actualFrame.methodInfo.getAttributesCount(); i++) {
+                AttributeInfo ai = actualFrame.methodInfo.getAttribute(i);
+                if(ai instanceof AttributeExceptions){
+                    AttributeExceptions ae = ((AttributeExceptions) ai);
+                    for (int j = 0; j < ae.getNumberOfExceptions(); j++) {
+                        String exceptionName = actualFrame.classFile.getClassName(ae.getExceptionIndexTableItem(j));
+                        if(exceptionName.equals(exceptionClass)){
+                            catched = true;
+                            frameStack.pop();
+                            MyLogger.logInfo("Throw exception " + exceptionName);
+                            return (MyException)retVal;
+                        }
+                    }
+                    
+                }
+            }
+            */
+            if(!catched && frameStack.size() == 1){
+                MyLogger.logError("Uncaught exception " + ((MyException)retVal).className + " at " + actualFrame.toString());
+            }else if(!catched){
+                MyLogger.logInfo("Throw exception " + ((MyException)retVal).className + " at " + actualFrame.toString());
+                return (MyException)retVal;
+            }
+        }
         MyLogger.logInfo("Continuing of execution method " + actualFrame.classFile.getThisClassName() + "." + actualFrame.methodInfo.getMethodDeclaration());
         if(retVal != null){
             MyLogger.logInfo("Add return value to the stack.");
             actualFrame.frameStack.push(retVal);
         }
+        return null;
     }
     
     private static String processMethodDescriptor(String desc){
@@ -548,10 +628,16 @@ public class ExecutionUnit {
         }else if(thisObject instanceof MyString){
             myString = (MyString) thisObject;
         }
+        int accessIndex;
+        if((frame.methodInfo.getAccessFlags() & MethodInfo.ACC_STATIC) == MethodInfo.ACC_STATIC){
+            accessIndex = 0;
+        }else{
+            accessIndex = 1;
+        }
 
         if(methodDescriptor.equals("java/lang/StringBuilder.append(Ljava/lang/String;)Ljava/lang/StringBuilder;"))
         {
-            MyString appendString = (MyString)frame.localVariable[1];
+            MyString appendString = (MyString)frame.localVariable[accessIndex];
             if(myObject.instanceVar.containsKey("String")){
                 MyString tmpString = (MyString) myObject.instanceVar.get("String");
                 myObject.instanceVar.put("String",new MyString(tmpString.getValue() + appendString.getValue()));
@@ -559,7 +645,7 @@ public class ExecutionUnit {
             return myObject;
         }else if(methodDescriptor.equals("java/lang/StringBuilder.append(I)Ljava/lang/StringBuilder;"))
         {
-            MyInteger appendInteger = (MyInteger)frame.localVariable[1];
+            MyInteger appendInteger = (MyInteger)frame.localVariable[accessIndex];
             if(myObject.instanceVar.containsKey("String")){
                 MyString tmpString = (MyString) myObject.instanceVar.get("String");
                 myObject.instanceVar.put("String",new MyString(tmpString.getValue() + appendInteger.getValue()));
@@ -571,20 +657,20 @@ public class ExecutionUnit {
             
         }else if(methodDescriptor.contains("print(Ljava/lang/String;)V"))
         {
-            System.out.println(frame.localVariable[1].toString());
+                System.out.println(frame.localVariable[accessIndex].toString());
         }else if(methodDescriptor.contains("readFile(Ljava/lang/String;)Ljava/lang/String;"))
         {
-            MyLogger.logInfo("Read file: " + frame.localVariable[1].toString());
-            String str = FileIO.readFile(frame.localVariable[1].toString());
+            MyLogger.logInfo("Read file: " + frame.localVariable[accessIndex].toString());
+            String str = FileIO.readFile(frame.localVariable[accessIndex].toString());
             return new MyString(str);
         }else if(methodDescriptor.contains("writeToFile(Ljava/lang/String;Ljava/lang/String;)V"))
         {
-            String filePath = frame.localVariable[1].toString();
-            String text = frame.localVariable[2].toString();
+            String filePath = frame.localVariable[accessIndex].toString();
+            String text = frame.localVariable[accessIndex+1].toString();
             MyLogger.logInfo("Write to file " + filePath + " \"" + text + "\".");
             FileIO.writeToFile(filePath, text);
         }else if(methodDescriptor.equals("java/lang/String.split(Ljava/lang/String;)[Ljava/lang/String;")){
-            String str = frame.localVariable[1].toString();
+            String str = frame.localVariable[accessIndex + 1].toString();
             MyLogger.logInfo("Split string: " + myString.toString());
             String [] splitString = myString.toString().split(str);
             MyArray retVal = new MyArray(splitString.length, "String");
@@ -593,11 +679,11 @@ public class ExecutionUnit {
             }
             return retVal;
         }else if(methodDescriptor.equals("java/lang/Integer.valueOf(Ljava/lang/String;)Ljava/lang/Integer;")){
-            String str = frame.localVariable[1].toString();
+            String str = frame.localVariable[accessIndex].toString();
             MyLogger.logInfo("Convert String \"" + str + "\" to MyInteger value");
             return new MyInteger(Integer.valueOf(str));
         }else if(methodDescriptor.equals("java/lang/Integer.intValue()I")){
-            return frame.localVariable[0];
+            return frame.localVariable[accessIndex];
         }
         
         return null;
