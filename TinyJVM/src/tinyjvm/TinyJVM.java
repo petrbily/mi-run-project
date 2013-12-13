@@ -58,7 +58,6 @@ public class TinyJVM{
         
         date = new Date();
         System.out.println("Ends at: " + date);
-        //classHeap.printClassHeap();
         
     }
     
