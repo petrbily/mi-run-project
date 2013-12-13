@@ -20,7 +20,7 @@ public class MyException extends MyObject{
     
     public MyException(MyObject obj){
         super(obj.id, obj.className, obj.instanceVar);
-        
+        super.mark = true;
     }
     
 }

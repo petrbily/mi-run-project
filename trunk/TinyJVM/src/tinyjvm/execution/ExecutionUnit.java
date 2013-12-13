@@ -554,25 +554,6 @@ public class ExecutionUnit {
                     }
                 }
             }
-            //throw again
-            /*
-            for (int i = 0; i < actualFrame.methodInfo.getAttributesCount(); i++) {
-                AttributeInfo ai = actualFrame.methodInfo.getAttribute(i);
-                if(ai instanceof AttributeExceptions){
-                    AttributeExceptions ae = ((AttributeExceptions) ai);
-                    for (int j = 0; j < ae.getNumberOfExceptions(); j++) {
-                        String exceptionName = actualFrame.classFile.getClassName(ae.getExceptionIndexTableItem(j));
-                        if(exceptionName.equals(exceptionClass)){
-                            catched = true;
-                            frameStack.pop();
-                            MyLogger.logInfo("Throw exception " + exceptionName);
-                            return (MyException)retVal;
-                        }
-                    }
-                    
-                }
-            }
-            */
             if(!catched && frameStack.size() == 1){
                 MyLogger.logError("Uncaught exception " + ((MyException)retVal).className + " at " + actualFrame.toString());
             }else if(!catched){
@@ -584,6 +565,13 @@ public class ExecutionUnit {
         if(retVal != null){
             MyLogger.logInfo("Add return value to the stack.");
             actualFrame.frameStack.push(retVal);
+        }
+        
+        //garbage collecting
+        if(ObjectHeap.getInstance().objectHeap.size() > 1000){
+            System.out.println("Count of objects before cleanup: " + ObjectHeap.getInstance().objectHeap.size());
+            GarbageCollector.cleanup(frameStack);
+            System.out.println("Count of objects after cleanup: " + ObjectHeap.getInstance().objectHeap.size());
         }
         return null;
     }

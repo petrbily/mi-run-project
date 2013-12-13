@@ -15,6 +15,7 @@ public class MyObject extends Variable{
     public String id;
     public String className;
     public HashMap<String,Variable> instanceVar = new HashMap<String,Variable>();
+    public boolean mark = false;
     //public MyObject superObject;
     
     /*
